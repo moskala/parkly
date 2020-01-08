@@ -45,4 +45,60 @@ public class Parking implements Serializable {
     public long getId() {
         return id;
     }
+
+    public String getCity() {
+        return city;
+    }
+
+    public void setCity(String city) {
+        this.city = city;
+    }
+
+    public String getStreet() {
+        return street;
+    }
+
+    public void setStreet(String street) {
+        this.street = street;
+    }
+
+    public int getStreetNumber() {
+        return streetNumber;
+    }
+
+    public void setStreetNumber(int streetNumber) {
+        this.streetNumber = streetNumber;
+    }
+
+    public int getNumberOfSpots() {
+        return numberOfSpots;
+    }
+
+    public void setNumberOfSpots(int numberOfSpots) {
+        this.numberOfSpots = numberOfSpots;
+    }
+
+    public int getWorkingHoursFrom() {
+        return workingHoursFrom;
+    }
+
+    public void setWorkingHoursFrom(int workingHoursFrom) {
+        this.workingHoursFrom = workingHoursFrom;
+    }
+
+    public int getWorkingHoursTo() {
+        return workingHoursTo;
+    }
+
+    public void setWorkingHoursTo(int workingHoursTo) {
+        this.workingHoursTo = workingHoursTo;
+    }
+
+    public int getOwnerID() {
+        return ownerID;
+    }
+
+    public void setOwnerID(int ownerID) {
+        this.ownerID = ownerID;
+    }
 }
