@@ -71,4 +71,16 @@ public class ReservationCreateRequest {
     public void setUserToken(String userToken) {
         this.userToken = userToken;
     }
+
+    public ReservationCreateRequest(){}
+
+    public ReservationCreateRequest(Reservation reservation) {
+        this.userToken = reservation.getUserToken();
+        this.parkingId = reservation.getParkingId();
+        this.dateFrom = reservation.getDateFrom();
+        this.dateTo = reservation.getDateTo();
+        this.userFirstName = reservation.getUserFirstName();
+        this.userLastName = reservation.getUserLastName();
+        this.userEmail = reservation.getUserEmail();
+    }
 }
