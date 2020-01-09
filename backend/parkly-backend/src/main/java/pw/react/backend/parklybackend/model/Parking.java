@@ -3,11 +3,21 @@ package pw.react.backend.parklybackend.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import org.springframework.http.HttpStatus;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 
 
 import javax.persistence.*;
+import javax.validation.constraints.Max;
+import javax.validation.constraints.Min;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.LocalDateTime;
+import java.util.HashMap;
+import java.util.Map;
 
 
 @Entity
@@ -22,25 +32,45 @@ public class Parking implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @NotNull
     private long id;
+
+
     @Column(name = "city")
     private String city;
+    @NotNull
     @Column(name = "street")
     private String street;
+    @NotNull
+    @Min(value = 1, message = "Street number has to be greater than 0")
     @Column(name="streetNumber")
     private int streetNumber;
+    @NotNull
+    @Min(value=1,message = "Number of spots has to be greater than 0")
     @Column(name = "numberOfSpots")
     private int numberOfSpots;
+    @NotNull
+    @Min(value = 0,message = "Working hours cannot be negative")
+    @Max(value = 23, message="Working hours cannot be more than 23")
     @Column(name="workingHoursFrom")
     private int workingHoursFrom;
+    @NotNull
+    @Min(value = 0,message = "Working hours cannot be negative")
+    @Max(value = 23, message="Working hours cannot be more than 23")
     @Column(name="workingHoursTo")
     private int workingHoursTo;
+
+
+    @NotNull
     @Column(name = "ownerID")
-    private int ownerID;
+    private long ownerID;
 
     public void setId(long id) {
         this.id = id;
     }
+
+
+
 
     public long getId() {
         return id;
@@ -94,11 +124,12 @@ public class Parking implements Serializable {
         this.workingHoursTo = workingHoursTo;
     }
 
-    public int getOwnerID() {
+    public long getOwnerID() {
         return ownerID;
     }
 
-    public void setOwnerID(int ownerID) {
+    public void setOwnerID(long ownerID) {
         this.ownerID = ownerID;
     }
+
 }

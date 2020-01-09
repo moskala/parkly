@@ -9,6 +9,8 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -17,9 +19,7 @@ import pw.react.backend.parklybackend.model.Parking;
 import pw.react.backend.parklybackend.service.ParkingService;
 
 import javax.validation.Valid;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 import static java.util.stream.Collectors.joining;
 
@@ -38,14 +38,23 @@ public class ParkingController {
         this.parkingService = parkingService;
     }
 
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public Map<String, String> handleValidationExceptions(
+            MethodArgumentNotValidException ex) {
+        Map<String, String> errors = new HashMap<>();
+        ex.getBindingResult().getAllErrors().forEach((error) -> {
+            String fieldName = ((FieldError) error).getField();
+            String errorMessage = error.getDefaultMessage();
+            errors.put(fieldName, errorMessage);
+        });
+        return errors;
+    }
+
     @PostMapping(path = "")
-    public ResponseEntity<String> createParking(@RequestHeader HttpHeaders headers, @Valid @RequestBody List<Parking> parkings) {
-
-
-            List<Parking> result = repository.saveAll(parkings);
-            return ResponseEntity.ok(result.stream().map(c -> String.valueOf(c.getId())).collect(joining(",")));
-
-
+    public ResponseEntity<String> createParking(@RequestHeader HttpHeaders headers, @Valid @RequestBody Parking parking)
+    {
+        return parkingService.addParking(parking);
     }
 
 
@@ -57,7 +66,7 @@ public class ParkingController {
 //            return ResponseEntity.ok(repository.findById(parkingId).orElseGet(() -> Parking.EMPTY));
 //        }
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Parking.EMPTY);
-        return ResponseEntity.ok(repository.findById(parkingId).orElseGet(() -> Parking.EMPTY));
+        return ResponseEntity.ok(parkingService.getParking(parkingId));
     }
 
     @GetMapping(path = "")
@@ -67,7 +76,7 @@ public class ParkingController {
 //            return ResponseEntity.ok(repository.findAll());
 //        }
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.emptyList());
-        return ResponseEntity.ok(repository.findAll());
+        return ResponseEntity.ok(parkingService.getAllParkings());
     }
 
     @PutMapping(path = "/{parkingId}")
