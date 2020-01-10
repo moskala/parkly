@@ -10,10 +10,13 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import pw.react.backend.parklybackend.dao.AvailableParkingSpotRepository;
 import pw.react.backend.parklybackend.dao.ParkingRepository;
+import pw.react.backend.parklybackend.model.AvailableParkingSpot;
 import pw.react.backend.parklybackend.model.Parking;
 
 import javax.validation.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -21,6 +24,8 @@ class ParkingServiceImpl implements ParkingService {
     private final Logger logger = LoggerFactory.getLogger(ParkingServiceImpl.class);
 
     private ParkingRepository repository;
+    private AvailableParkingSpotRepository repositorySpots;
+
 
     ParkingServiceImpl() { /*Needed only for initializing spy in unit tests*/}
 
@@ -28,9 +33,10 @@ class ParkingServiceImpl implements ParkingService {
 
 
     @Autowired
-    ParkingServiceImpl(ParkingRepository repository)
+    ParkingServiceImpl(ParkingRepository repository, AvailableParkingSpotRepository repositorySpot)
     {
         this.repository = repository;
+        this.repositorySpots = repositorySpot;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -69,11 +75,25 @@ class ParkingServiceImpl implements ParkingService {
     {
         return repository.findAll();
     }
+
+    @Override
+    public boolean addNewDates(Collection<LocalDateTime> datesToAdd, Long parkingId) {
+        Optional<Parking> parkingOpt = repository.findById(parkingId);
+        if(!parkingOpt.isPresent()) return false;
+        Parking parking = parkingOpt.get();
+        for(LocalDateTime date:datesToAdd){
+            List<AvailableParkingSpot> spotsToSave = addNewDateToParking(parking, date);
+            repositorySpots.saveAll(spotsToSave);
+        }
+        return true;
+    }
+
     @Override
     public Parking getParking(long parkingId)
     {
         return repository.findById(parkingId).orElseGet(() -> Parking.EMPTY);
     }
+
     @Override
     public boolean deleteParking(Long parkingId) {
         boolean result = false;
@@ -83,5 +103,20 @@ class ParkingServiceImpl implements ParkingService {
             result = true;
         }
         return result;
+    }
+
+    public List<AvailableParkingSpot> addNewDateToParking(Parking parking, LocalDateTime date) {
+        List<AvailableParkingSpot> spotsDates = new ArrayList<>();
+        int workingFrom = parking.getWorkingHoursFrom();
+        int workingTo = parking.getWorkingHoursTo();
+        for(int spot = 1; spot <= parking.getNumberOfSpots(); ++spot) {
+            for(int i = workingFrom; i < workingTo; ++i) {
+                LocalDateTime dateFrom = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), i, 0);
+                LocalDateTime dateTo = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), i+1, 0);
+                AvailableParkingSpot avSpot = new AvailableParkingSpot(dateFrom, dateTo, spot, parking);
+                spotsDates.add(avSpot);
+            }
+        }
+        return spotsDates;
     }
 }
