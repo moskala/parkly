@@ -52,7 +52,7 @@ public class ParkingOwnerController {
     }
 
     @PostMapping(path = "")
-    public ResponseEntity<String> createParking(@RequestHeader HttpHeaders headers, @Valid @RequestBody ParkingOwner parkingOwner)
+    public ResponseEntity<String> createParkingOwner(@RequestHeader HttpHeaders headers, @Valid @RequestBody ParkingOwner parkingOwner)
     {
         return parkingOwnerService.addParkingOwner(parkingOwner);
     }
@@ -70,7 +70,7 @@ public class ParkingOwnerController {
     }
 
     @GetMapping(path = "")
-    public ResponseEntity<Collection<ParkingOwner>> getAllParkingOwners(@RequestHeader HttpHeaders headers) {
+    public ResponseEntity<Collection<ParkingOwner>> getAllParkings(@RequestHeader HttpHeaders headers) {
 //
 //        if (securityService.isAuthorized(headers)) {
 //            return ResponseEntity.ok(repository.findAll());

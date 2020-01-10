@@ -11,10 +11,15 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
+import pw.react.backend.parklybackend.model.Parking;
 import pw.react.backend.parklybackend.model.ParkingOwner;
 import pw.react.backend.parklybackend.controller.ParkingOwnerController;
 
+import javax.crypto.SecretKeyFactory;
+import javax.crypto.spec.PBEKeySpec;
 import javax.validation.*;
+import java.security.SecureRandom;
+import java.security.spec.KeySpec;
 import java.util.*;
 
 @Service
@@ -59,11 +64,31 @@ class ParkingOwnerServiceImpl implements ParkingOwnerService {
         }
         return result;
     }
+
+    private String Hash(String password)
+    {
+//        SecureRandom random = new SecureRandom();
+//        byte[] salt = new byte[16];
+//        random.nextBytes(salt);
+//        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
+//        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
+        return Integer.toString(password.hashCode());
+    }
+
     @Override
     public ResponseEntity<String> addParkingOwner(ParkingOwner parkingOwner)
     {
-        ParkingOwner result = repository.save(parkingOwner);
-        return ResponseEntity.ok("Parking owner is valid");
+        //sprawdzenie mejla
+        if(repository.findByEmail(parkingOwner.getEmail()).isPresent())
+        {
+            parkingOwner.setHashPassword(Hash(parkingOwner.getHashPassword()));
+            ParkingOwner result = repository.save(parkingOwner);
+            return ResponseEntity.ok("Parking owner is valid");
+        }
+        else
+        {
+            return ResponseEntity.badRequest().body("User with this email already exists");
+        }
     }
     @Override
     public Collection<ParkingOwner> getAllParkingOwners()
@@ -75,6 +100,7 @@ class ParkingOwnerServiceImpl implements ParkingOwnerService {
     {
         return repository.findById(parkingOwnerId).orElseGet(() -> ParkingOwner.EMPTY);
     }
+
     @Override
     public boolean deleteParkingOwner(Long parkingOwnerId) {
         boolean result = false;

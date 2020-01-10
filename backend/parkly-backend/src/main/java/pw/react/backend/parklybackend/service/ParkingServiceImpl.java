@@ -64,6 +64,7 @@ class ParkingServiceImpl implements ParkingService {
             Parking result = repository.save(parking);
             return ResponseEntity.ok("Parking is valid");
     }
+
     @Override
     public Collection<Parking> getAllParkings()
     {
