@@ -14,9 +14,9 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
-import pw.react.backend.parklybackend.dao.ParkingRepository;
-import pw.react.backend.parklybackend.model.Parking;
-import pw.react.backend.parklybackend.service.ParkingService;
+import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
+import pw.react.backend.parklybackend.model.ParkingOwner;
+import pw.react.backend.parklybackend.service.ParkingOwnerService;
 
 import javax.validation.Valid;
 import java.util.*;
@@ -24,18 +24,18 @@ import java.util.*;
 import static java.util.stream.Collectors.joining;
 
 @RestController
-@RequestMapping(path = "/parking") //czy parkings??
+@RequestMapping(path = "/parkingOwner") //czy parkings??
 //dodac security
-public class ParkingController {
+public class ParkingOwnerController {
 
 
-    private ParkingRepository repository;
-    private ParkingService parkingService;
+    private ParkingOwnerRepository repository;
+    private ParkingOwnerService parkingOwnerService;
 
     @Autowired
-    public ParkingController(ParkingRepository repository, ParkingService parkingService) {
+    public ParkingOwnerController(ParkingOwnerRepository repository, ParkingOwnerService parkingOwnerService) {
         this.repository = repository;
-        this.parkingService = parkingService;
+        this.parkingOwnerService = parkingOwnerService;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -52,39 +52,39 @@ public class ParkingController {
     }
 
     @PostMapping(path = "")
-    public ResponseEntity<String> createParking(@RequestHeader HttpHeaders headers, @Valid @RequestBody Parking parking)
+    public ResponseEntity<String> createParking(@RequestHeader HttpHeaders headers, @Valid @RequestBody ParkingOwner parkingOwner)
     {
-        return parkingService.addParking(parking);
+        return parkingOwnerService.addParkingOwner(parkingOwner);
     }
 
 
-    @GetMapping(path = "/{parkingId}")
-    public ResponseEntity<Parking> getParking(@RequestHeader HttpHeaders headers,
-                                              @PathVariable Long parkingId) {
+    @GetMapping(path = "/{parkingOwnerId}")
+    public ResponseEntity<ParkingOwner> getParkingOwner(@RequestHeader HttpHeaders headers,
+                                              @PathVariable Long parkingOwnerId) {
 
 //        if (securityService.isAuthorized(headers)) {
 //            return ResponseEntity.ok(repository.findById(parkingId).orElseGet(() -> Parking.EMPTY));
 //        }
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Parking.EMPTY);
-        return ResponseEntity.ok(parkingService.getParking(parkingId));
+        return ResponseEntity.ok(parkingOwnerService.getParkingOwner(parkingOwnerId));
     }
 
     @GetMapping(path = "")
-    public ResponseEntity<Collection<Parking>> getAllParkings(@RequestHeader HttpHeaders headers) {
+    public ResponseEntity<Collection<ParkingOwner>> getAllParkingOwners(@RequestHeader HttpHeaders headers) {
 //
 //        if (securityService.isAuthorized(headers)) {
 //            return ResponseEntity.ok(repository.findAll());
 //        }
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.emptyList());
-        return ResponseEntity.ok(parkingService.getAllParkings());
+        return ResponseEntity.ok(parkingOwnerService.getAllParkingOwners());
     }
 
-    @PutMapping(path = "/{parkingId}")
-    public ResponseEntity<Parking> updateParking(@RequestHeader HttpHeaders headers,
+    @PutMapping(path = "/{parkingOwnerId}")
+    public ResponseEntity<ParkingOwner> updateParkingOwner(@RequestHeader HttpHeaders headers,
                                                  @PathVariable Long parkingId,
-                                                 @RequestBody @Valid Parking updatedParking) {
+                                                 @RequestBody @Valid ParkingOwner updatedParkingOwner) {
 
-        Parking result;
+        ParkingOwner result;
 //        if (securityService.isAuthorized(headers)) {
 //            result = companyService.updateCompany(companyId, updatedCompany);
 //            if (Company.EMPTY.equals(result)) {
@@ -93,14 +93,14 @@ public class ParkingController {
 //            return ResponseEntity.ok(result);
 //        }
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Company.EMPTY);
-        result = parkingService.updateParking(parkingId, updatedParking);
-        if (Parking.EMPTY.equals(result)) {
-            return ResponseEntity.badRequest().body(updatedParking);
+        result = parkingOwnerService.updateParkingOwner(parkingId, updatedParkingOwner);
+        if (ParkingOwner.EMPTY.equals(result)) {
+            return ResponseEntity.badRequest().body(updatedParkingOwner);
         }
         return ResponseEntity.ok(result);
     }
 
-    @DeleteMapping(path = "/{parkingId}")
+    @DeleteMapping(path = "/{parkingOwnerId}")
     public ResponseEntity<String> deleteParking(@RequestHeader HttpHeaders headers, @PathVariable Long parkingId) {
 
 //        if (securityService.isAuthorized(headers)) {
@@ -111,7 +111,7 @@ public class ParkingController {
 //            return ResponseEntity.ok(String.format("Company with id %s deleted.", companyId));
 //        }
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access to resources.");
-        boolean deleted = parkingService.deleteParking(parkingId);
+        boolean deleted = parkingOwnerService.deleteParkingOwner(parkingId);
         if (!deleted) {
             return ResponseEntity.badRequest().body(String.format("Parking with id %s does not exists.", parkingId));
         }

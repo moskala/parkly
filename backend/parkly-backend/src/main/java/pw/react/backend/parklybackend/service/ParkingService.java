@@ -12,7 +12,6 @@ import java.util.Map;
 public interface ParkingService {
     Parking updateParking(Long id, Parking updatedParking);
     boolean deleteParking(Long parkingId);
-    boolean validateParking(Parking parking);
     ResponseEntity<String> addParking(Parking parking);
     Parking getParking(long parkingId);
     Collection<Parking> getAllParkings();

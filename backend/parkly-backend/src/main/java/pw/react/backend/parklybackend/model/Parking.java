@@ -32,7 +32,6 @@ public class Parking implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
-    @NotNull
     private long id;
 
 

@@ -10,25 +10,26 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-import pw.react.backend.parklybackend.dao.ParkingRepository;
-import pw.react.backend.parklybackend.model.Parking;
+import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
+import pw.react.backend.parklybackend.model.ParkingOwner;
+import pw.react.backend.parklybackend.controller.ParkingOwnerController;
 
 import javax.validation.*;
 import java.util.*;
 
 @Service
-class ParkingServiceImpl implements ParkingService {
+class ParkingOwnerServiceImpl implements ParkingOwnerService {
     private final Logger logger = LoggerFactory.getLogger(ParkingServiceImpl.class);
 
-    private ParkingRepository repository;
+    private ParkingOwnerRepository repository;
 
-    ParkingServiceImpl() { /*Needed only for initializing spy in unit tests*/}
+    ParkingOwnerServiceImpl() { /*Needed only for initializing spy in unit tests*/}
 
 
 
 
     @Autowired
-    ParkingServiceImpl(ParkingRepository repository)
+    ParkingOwnerServiceImpl(ParkingOwnerRepository repository)
     {
         this.repository = repository;
     }
@@ -47,39 +48,39 @@ class ParkingServiceImpl implements ParkingService {
     }
 
     @Override
-    public Parking updateParking(Long id, Parking updatedParking) {
-        Parking result = Parking.EMPTY;
+    public ParkingOwner updateParkingOwner(Long id, ParkingOwner updatedParkingOwner) {
+        ParkingOwner result = ParkingOwner.EMPTY;
         if (repository.existsById(id)) {
-            updatedParking.setId(id);
+            updatedParkingOwner.setId(id);
 
-                result = repository.save(updatedParking);
-                //logger.info("Parking with id {} updated.", id);
+            result = repository.save(updatedParkingOwner);
+            //logger.info("Parking with id {} updated.", id);
 
         }
         return result;
     }
     @Override
-    public ResponseEntity<String> addParking(Parking parking)
+    public ResponseEntity<String> addParkingOwner(ParkingOwner parkingOwner)
     {
-            Parking result = repository.save(parking);
-            return ResponseEntity.ok("Parking is valid");
+        ParkingOwner result = repository.save(parkingOwner);
+        return ResponseEntity.ok("Parking owner is valid");
     }
     @Override
-    public Collection<Parking> getAllParkings()
+    public Collection<ParkingOwner> getAllParkingOwners()
     {
         return repository.findAll();
     }
     @Override
-    public Parking getParking(long parkingId)
+    public ParkingOwner getParkingOwner(long parkingOwnerId)
     {
-        return repository.findById(parkingId).orElseGet(() -> Parking.EMPTY);
+        return repository.findById(parkingOwnerId).orElseGet(() -> ParkingOwner.EMPTY);
     }
     @Override
-    public boolean deleteParking(Long parkingId) {
+    public boolean deleteParkingOwner(Long parkingOwnerId) {
         boolean result = false;
-        if (repository.existsById(parkingId)) {
-            repository.deleteById(parkingId);
-            logger.info("Parking with id {} deleted.", parkingId);
+        if (repository.existsById(parkingOwnerId)) {
+            repository.deleteById(parkingOwnerId);
+            logger.info("Parking with id {} deleted.", parkingOwnerId);
             result = true;
         }
         return result;
