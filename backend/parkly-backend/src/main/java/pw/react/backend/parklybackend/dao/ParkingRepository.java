@@ -10,13 +10,27 @@ public interface ParkingRepository extends JpaRepository<Parking, Long> {
     List<Parking> findAllByOwnerID(long ownerId);
     List<Parking> findAllByCity(String city);
     List<Parking> findAllByCityAndStreet(String city, String street);
-    List<Parking> findAllByWorkingHoursFromIsGreaterThanEqualAndWorkingHoursToLessThanEqualAndCityAndStreet(
+
+    List<Parking> findAllByCityAndStreetAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(
             String city,
             String street,
             int workingHoursFrom,
-            int workingHoursTo);
-    List<Parking> findAllByWorkingHoursFromIsGreaterThanEqualAndWorkingHoursToLessThanEqualAndCity(
+            int workingHoursTo
+    );
+
+    List<Parking> findAllByCityAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(
             String city,
             int workingHoursFrom,
-            int workingHoursTo);
+            int workingHoursTo
+    );
+
+    List<Parking> findAllByCityAndWorkingHoursFromIsLessThanEqual(String city, int workingHoursFrom);
+
+    List<Parking> findAllByCityAndWorkingHoursToIsGreaterThanEqual(String city, int workingHoursTo);
+
+    List<Parking> findAllByCityAndStreetAndWorkingHoursFromIsLessThanEqual(String city, String street, int workingHoursFrom);
+
+    List<Parking> findAllByCityAndStreetAndWorkingHoursToIsGreaterThanEqual(String city, String street, int workingHoursTo);
+
+
 }

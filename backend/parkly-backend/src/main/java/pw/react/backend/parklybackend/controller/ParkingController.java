@@ -14,6 +14,7 @@ import pw.react.backend.parklybackend.model.Filter;
 import pw.react.backend.parklybackend.service.ParkingService;
 
 import javax.validation.Valid;
+import java.awt.image.ReplicateScaleFilter;
 import java.util.*;
 
 import static java.util.stream.Collectors.joining;
@@ -56,39 +57,15 @@ public class ParkingController {
 
     //filtrowanie
     @GetMapping(path = "/filter")
-    public ResponseEntity<Object> filter(@RequestHeader HttpHeaders headers,@RequestBody Filter filter)
+    public ResponseEntity<Object> filter(@RequestHeader HttpHeaders headers,
+                                         @RequestParam String city, @RequestParam Optional<String> street,
+                                         @RequestParam Optional<Integer> workingHoursFrom, @RequestParam Optional<Integer> workingHoursTo)
     {
-        String city = filter.getCity();
-        String street = filter.getStreet();
-        int workingHoursFrom = filter.getWorkingHoursFrom();
-        int workingHoursTo = filter.getWorkingHoursTo();
-        //wszystko
-        if(city!="" && street != "" && workingHoursFrom!=-1 && workingHoursTo!=-1)
-        {
-            return ResponseEntity.ok(repository.findAllByWorkingHoursFromIsGreaterThanEqualAndWorkingHoursToLessThanEqualAndCityAndStreet(
-                    city,
-                    street,
-                    workingHoursFrom,workingHoursTo));
-        }
-        //miasto i ulica
-        else if(city!="" && street != "" && workingHoursFrom==0 && workingHoursTo==0)
-        {
-           return ResponseEntity.ok(repository.findAllByCityAndStreet(city, street));
-        }
-        //tylko miasto
-        else if(city!="" && street=="" && workingHoursFrom==0 && workingHoursTo==0)
-        {
-           return ResponseEntity.ok(repository.findAllByCity(city));
-        }
-        //tylko miasto i godziny
-        else if(city!="" && street=="" && workingHoursFrom!=-1 && workingHoursTo!=-1)
-        {
-            return ResponseEntity.ok(repository.findAllByWorkingHoursFromIsGreaterThanEqualAndWorkingHoursToLessThanEqualAndCity(
-                    city,
-                    workingHoursFrom,
-                    workingHoursTo
-            ));
-        }
+
+        if(city == null || city.isEmpty()) return ResponseEntity.badRequest().body(null);
+        //to do : zwalidować ulice, dodac inne filtry
+        List<Parking> parkings = parkingService.filterParkings(city, street, workingHoursFrom, workingHoursTo);
+        if(parkings != null) return ResponseEntity.ok(parkings);
         else return ResponseEntity.badRequest().body(null);
     }
 
