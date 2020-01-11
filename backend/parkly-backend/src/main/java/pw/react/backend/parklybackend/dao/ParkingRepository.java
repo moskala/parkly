@@ -6,7 +6,10 @@ import pw.react.backend.parklybackend.model.Reservation;
 
 import java.util.List;
 
+import java.util.Optional;
+
 public interface ParkingRepository extends JpaRepository<Parking, Long> {
+
     List<Parking> findAllByOwnerID(long ownerId);
     List<Parking> findAllByCity(String city);
     List<Parking> findAllByCityAndStreet(String city, String street);
@@ -32,5 +35,5 @@ public interface ParkingRepository extends JpaRepository<Parking, Long> {
 
     List<Parking> findAllByCityAndStreetAndWorkingHoursToIsGreaterThanEqual(String city, String street, int workingHoursTo);
 
-
+    Optional<Parking> findById(Long aLong);
 }

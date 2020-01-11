@@ -70,9 +70,6 @@ public class Parking implements Serializable {
         this.id = id;
     }
 
-
-
-
     public long getId() {
         return id;
     }
@@ -132,5 +129,4 @@ public class Parking implements Serializable {
     public void setOwnerID(ParkingOwner ownerID) {
         this.ownerID = ownerID;
     }
-
 }
