@@ -30,9 +30,6 @@ class ParkingOwnerServiceImpl implements ParkingOwnerService {
 
     ParkingOwnerServiceImpl() { /*Needed only for initializing spy in unit tests*/}
 
-
-
-
     @Autowired
     ParkingOwnerServiceImpl(ParkingOwnerRepository repository)
     {
@@ -78,6 +75,14 @@ class ParkingOwnerServiceImpl implements ParkingOwnerService {
     @Override
     public ResponseEntity<String> addParkingOwner(ParkingOwner parkingOwner)
     {
+        Optional<ParkingOwner> alreadyExists = repository.findByEmail(parkingOwner.getEmail());
+        if(alreadyExists.isPresent()){
+            return ResponseEntity.badRequest().body("Email already exists");
+        }
+        String hashPassword = hashPassword(parkingOwner.getHashPassword());
+        parkingOwner.setHashPassword(hashPassword);
+        ParkingOwner result = repository.save(parkingOwner);
+        return ResponseEntity.ok("Parking owner is valid");
         //sprawdzenie mejla
         if(repository.findByEmail(parkingOwner.getEmail()).isPresent())
         {
@@ -90,11 +95,13 @@ class ParkingOwnerServiceImpl implements ParkingOwnerService {
             return ResponseEntity.badRequest().body("User with this email already exists");
         }
     }
+
     @Override
     public Collection<ParkingOwner> getAllParkingOwners()
     {
         return repository.findAll();
     }
+
     @Override
     public ParkingOwner getParkingOwner(long parkingOwnerId)
     {
@@ -111,4 +118,27 @@ class ParkingOwnerServiceImpl implements ParkingOwnerService {
         }
         return result;
     }
+
+    public String hashPassword(String password) {
+        // to implement: hash function
+        return password;
+    }
+
+    @Override
+    public boolean authenticateUser(String email, String password){
+        String hashPassword = hashPassword(password);
+        Optional<ParkingOwner> parkingOwner = repository.findByEmail(email);
+        if(parkingOwner.isPresent() && parkingOwner.get().getHashPassword().equals(hashPassword)) {
+            return true;
+        }
+        else return false;
+    }
+
+    @Override
+    public boolean checkEmailExists(String email) {
+        Optional<ParkingOwner> alreadyExists = repository.findByEmail(email);
+        if(alreadyExists.isPresent()) return true;
+        return false;
+    }
+
 }

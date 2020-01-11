@@ -16,4 +16,6 @@ public interface ParkingOwnerService {
     ResponseEntity<String> addParkingOwner(ParkingOwner parkingOwner);
     ParkingOwner getParkingOwner(long parkingOwnerId);
     Collection<ParkingOwner> getAllParkingOwners();
+    boolean authenticateUser(String email, String password);
+    boolean checkEmailExists(String email);
 }

@@ -28,13 +28,10 @@ import static java.util.stream.Collectors.joining;
 //dodac security
 public class ParkingOwnerController {
 
-
-    private ParkingOwnerRepository repository;
     private ParkingOwnerService parkingOwnerService;
 
     @Autowired
-    public ParkingOwnerController(ParkingOwnerRepository repository, ParkingOwnerService parkingOwnerService) {
-        this.repository = repository;
+    public ParkingOwnerController(ParkingOwnerService parkingOwnerService) {
         this.parkingOwnerService = parkingOwnerService;
     }
 
@@ -118,7 +115,25 @@ public class ParkingOwnerController {
         return ResponseEntity.ok(String.format("Parking with id %s deleted.", parkingId));
     }
 
+    @PostMapping(path = "/login")
+    public ResponseEntity<String> logInUser(@RequestHeader HttpHeaders headers) {
+        String email = headers.getFirst("EMAIL");
+        String password = headers.getFirst("PASSWORD");
+        if(!parkingOwnerService.checkEmailExists(email)){
+            return ResponseEntity.badRequest().body("Email does not exists");
+        }
+        if(parkingOwnerService.authenticateUser(email, password)) {
+            return ResponseEntity.ok("Logged in");
+        }
+        else return ResponseEntity.badRequest().body("Incorrect password");
+    }
 
-
+    @GetMapping(path="/email")
+    public ResponseEntity<String> checkIsEmailUnique(@RequestHeader HttpHeaders headers, @RequestParam String email){
+        if(parkingOwnerService.checkEmailExists(email)){
+            return ResponseEntity.status(HttpStatus.FOUND).body("Email already exists in service");
+        }
+        else return ResponseEntity.ok("Email is unique");
+    }
 
 }
