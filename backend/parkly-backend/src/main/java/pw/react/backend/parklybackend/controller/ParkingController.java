@@ -19,6 +19,7 @@ import pw.react.backend.parklybackend.model.Parking;
 import pw.react.backend.parklybackend.service.ParkingService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.*;
 
 import static java.util.stream.Collectors.joining;
@@ -118,7 +119,17 @@ public class ParkingController {
         return ResponseEntity.ok(String.format("Parking with id %s deleted.", parkingId));
     }
 
+    @PostMapping(path = "/new-dates/{parkingId}")
+    public ResponseEntity<String> addNewDates(@RequestHeader HttpHeaders headers, @PathVariable Long parkingId,
+                                              @RequestBody @Valid List<LocalDateTime> datesToAdd) {
 
+        boolean result = parkingService.addNewDates(datesToAdd, parkingId);
+        if(result) {
+            return  ResponseEntity.ok("New dates have been added!");
+
+        }
+        else return ResponseEntity.badRequest().body("Dates cannot be added.");
+    }
 
 
 }

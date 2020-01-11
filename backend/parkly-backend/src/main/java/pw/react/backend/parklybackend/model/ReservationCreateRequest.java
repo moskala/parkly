@@ -2,15 +2,16 @@ package pw.react.backend.parklybackend.model;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 
+import java.time.LocalDateTime;
 import java.util.Date;
 
 public class ReservationCreateRequest {
 
     private long parkingId;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date dateFrom;
+    private LocalDateTime dateFrom;
     @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
-    private Date dateTo;
+    private LocalDateTime dateTo;
     private String userFirstName;
     private String userLastName;
     private String userEmail;
@@ -24,19 +25,19 @@ public class ReservationCreateRequest {
         this.parkingId = parkingId;
     }
 
-    public Date getDateFrom() {
+    public LocalDateTime getDateFrom() {
         return dateFrom;
     }
 
-    public void setDateFrom(Date dateFrom) {
+    public void setDateFrom(LocalDateTime dateFrom) {
         this.dateFrom = dateFrom;
     }
 
-    public Date getDateTo() {
+    public LocalDateTime getDateTo() {
         return dateTo;
     }
 
-    public void setDateTo(Date dateTo) {
+    public void setDateTo(LocalDateTime dateTo) {
         this.dateTo = dateTo;
     }
 
@@ -76,7 +77,7 @@ public class ReservationCreateRequest {
 
     public ReservationCreateRequest(Reservation reservation) {
         this.userToken = reservation.getUserToken();
-        this.parkingId = reservation.getParkingId();
+        this.parkingId = reservation.getParkingId().getId();
         this.dateFrom = reservation.getDateFrom();
         this.dateTo = reservation.getDateTo();
         this.userFirstName = reservation.getUserFirstName();

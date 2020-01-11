@@ -3,6 +3,7 @@ package pw.react.backend.parklybackend.model;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.Date;
 
 @Entity
@@ -14,12 +15,13 @@ public class Reservation {
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
-    @Column(name = "parkingId")
-    private long parkingId;
+    @ManyToOne
+    @JoinColumn(name="parkingId")
+    private Parking parkingId;
     @Column(name = "dateFrom")
-    private Date dateFrom;
+    private LocalDateTime dateFrom;
     @Column(name = "dateTo")
-    private Date dateTo;
+    private LocalDateTime dateTo;
     @Column(name = "userFirstName")
     private String userFirstName;
     @Column(name = "userLastName")
@@ -29,12 +31,11 @@ public class Reservation {
     @Column(name = "userToken")
     private String userToken;
     @Column(name = "createdAt")
-    private Date createdAt;
+    private LocalDateTime createdAt;
 
     public Reservation(){}
 
     public Reservation(ReservationCreateRequest request) {
-        parkingId = request.getParkingId();
         dateFrom = request.getDateFrom();
         dateTo = request.getDateTo();
         userFirstName = request.getUserFirstName();
@@ -43,36 +44,36 @@ public class Reservation {
         userToken = request.getUserToken();
     }
 
-    public long getParkingId() {
+    public Parking getParkingId() {
         return parkingId;
     }
 
-    public void setParkingId(long parkingId) {
+    public void setParkingId(Parking parkingId) {
         this.parkingId = parkingId;
     }
 
-    public Date getDateFrom() {
+    public LocalDateTime getDateFrom() {
         return dateFrom;
     }
 
-    public void setDateFrom(Date dateFrom) {
+    public void setDateFrom(LocalDateTime dateFrom) {
         this.dateFrom = dateFrom;
     }
 
-    public Date getDateTo() {
+    public LocalDateTime getDateTo() {
         return dateTo;
     }
 
-    public void setDateTo(Date dateTo) {
+    public void setDateTo(Date LocalDateTime) {
         this.dateTo = dateTo;
     }
 
-    public Date getCreatedAt() {
+    public LocalDateTime getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt() {
-        this.createdAt = new Date();
+        this.createdAt = LocalDateTime.now();
     }
 
     public String getUserFirstName() {

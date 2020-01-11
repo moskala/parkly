@@ -61,15 +61,13 @@ public class Parking implements Serializable {
 
 
     @NotNull
-    @Column(name = "ownerID")
-    private long ownerID;
+    @ManyToOne
+    @JoinColumn(name = "ownerID")
+    private ParkingOwner ownerID;
 
     public void setId(long id) {
         this.id = id;
     }
-
-
-
 
     public long getId() {
         return id;
@@ -123,12 +121,11 @@ public class Parking implements Serializable {
         this.workingHoursTo = workingHoursTo;
     }
 
-    public long getOwnerID() {
+    public ParkingOwner getOwnerID() {
         return ownerID;
     }
 
-    public void setOwnerID(long ownerID) {
+    public void setOwnerID(ParkingOwner ownerID) {
         this.ownerID = ownerID;
     }
-
 }

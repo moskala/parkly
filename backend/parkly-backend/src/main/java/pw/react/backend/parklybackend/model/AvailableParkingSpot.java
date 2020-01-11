@@ -1,18 +1,23 @@
 package pw.react.backend.parklybackend.model;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.hibernate.annotations.OnDelete;
 import org.hibernate.annotations.OnDeleteAction;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
-import java.util.Date;
+import java.io.Serializable;
+import java.time.LocalDateTime;
+import java.util.*;
 
 @Entity
-@Table(name = "AvailableParkingSpots")
-public class AvailableParkingSpots {
+@Table(name = "AvailableParkingSpot")
+public class AvailableParkingSpot implements Serializable {
 
-    public static Parking EMPTY = new Parking();
+    public static AvailableParkingSpot EMPTY = new AvailableParkingSpot();
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -31,10 +36,12 @@ public class AvailableParkingSpots {
     private Parking parking;    //czy trzeba getter i setter?
 
     @Column(name="dateFrom")
-    private Date dateFrom;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime dateFrom;
 
     @Column (name="dateTo")
-    private Date dateTo;
+    @JsonFormat(pattern="yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime dateTo;
 
 
     public long getId() {
@@ -53,19 +60,28 @@ public class AvailableParkingSpots {
         this.spotNumber = spotNumber;
     }
 
-    public Date getDateFrom() {
+    public LocalDateTime getDateFrom() {
         return dateFrom;
     }
 
-    public void setDateFrom(Date dateFrom) {
+    public void setDateFrom(LocalDateTime dateFrom) {
         this.dateFrom = dateFrom;
     }
 
-    public Date getDateTo() {
+    public LocalDateTime getDateTo() {
         return dateTo;
     }
 
-    public void setDateTo(Date dateTo) {
+    public void setDateTo(LocalDateTime dateTo) {
         this.dateTo = dateTo;
+    }
+
+    public AvailableParkingSpot(){}
+
+    public AvailableParkingSpot(LocalDateTime dateFrom, LocalDateTime dateTo, int spotNumber, Parking parking) {
+        this.dateFrom = dateFrom;
+        this.dateTo = dateTo;
+        this.spotNumber = spotNumber;
+        this.parking = parking;
     }
 }
