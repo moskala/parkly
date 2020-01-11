@@ -113,46 +113,38 @@ class ParkingServiceImpl implements ParkingService {
     public List<Parking> filterParkings(String city, Optional<String> street, Optional<Integer> workingHoursFrom, Optional<Integer> workingHoursTo) {
 
         //wszystko
-        if(street.isPresent() && workingHoursFrom.isPresent() && workingHoursTo.isPresent())
-        {
+        if (street.isPresent() && workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
             return filterByAll(city, street.get(), workingHoursFrom.get(), workingHoursTo.get());
         }
         //miasto i ulica
-        else if(street.isPresent() && !workingHoursFrom.isPresent() && !workingHoursTo.isPresent())
-        {
+        else if (street.isPresent() && !workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
             return repository.findAllByCityAndStreet(city, street.get());
         }
         //tylko miasto
-        else if(!street.isPresent() && !workingHoursFrom.isPresent() && !workingHoursTo.isPresent())
-        {
+        else if (!street.isPresent() && !workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
             return repository.findAllByCity(city);
         }
         //tylko miasto i obie godziny
-        else if(!street.isPresent() && workingHoursFrom.isPresent() && workingHoursTo.isPresent())
-        {
-           return filterByCityAndHours(city, workingHoursFrom.get(), workingHoursTo.get());
+        else if (!street.isPresent() && workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
+            return filterByCityAndHours(city, workingHoursFrom.get(), workingHoursTo.get());
         }
         //tylko miasto i hoursFrom
-        else if(!street.isPresent() && workingHoursFrom.isPresent() && !workingHoursTo.isPresent())
-        {
-            return  filterByHoursFrom(city, workingHoursFrom.get());
+        else if (!street.isPresent() && workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
+            return filterByHoursFrom(city, workingHoursFrom.get());
         }
         //tylko miasto i hoursTo
-        else if(!street.isPresent() && !workingHoursFrom.isPresent() && workingHoursTo.isPresent())
-        {
+        else if (!street.isPresent() && !workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
             return filterByHoursTo(city, workingHoursTo.get());
         }
         //miasto ulica hoursFrom
-        else if(street.isPresent() && workingHoursFrom.isPresent() && !workingHoursTo.isPresent())
-        {
+        else if (street.isPresent() && workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
             return filterByStreetAdnHoursFrom(city, street.get(), workingHoursFrom.get());
         }
         //miasto ulica hoursTo
-        else if(street.isPresent() && !workingHoursFrom.isPresent() && workingHoursTo.isPresent())
-        {
+        else if (street.isPresent() && !workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
             return filterByStreetAndHoursTo(city, street.get(), workingHoursTo.get());
-        }
-        else return null;
+        } else return null;
+    }
 
     @Override
     public boolean addNewDates(Collection<LocalDateTime> datesToAdd, Long parkingId) {
