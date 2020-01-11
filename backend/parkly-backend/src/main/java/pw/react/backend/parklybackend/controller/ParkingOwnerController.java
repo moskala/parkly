@@ -67,7 +67,7 @@ public class ParkingOwnerController {
     }
 
     @GetMapping(path = "")
-    public ResponseEntity<Collection<ParkingOwner>> getAllParkingOwners(@RequestHeader HttpHeaders headers) {
+    public ResponseEntity<Collection<ParkingOwner>> getAllParkings(@RequestHeader HttpHeaders headers) {
 //
 //        if (securityService.isAuthorized(headers)) {
 //            return ResponseEntity.ok(repository.findAll());

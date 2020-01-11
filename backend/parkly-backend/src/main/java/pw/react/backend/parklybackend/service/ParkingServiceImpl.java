@@ -10,10 +10,13 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import pw.react.backend.parklybackend.dao.AvailableParkingSpotRepository;
 import pw.react.backend.parklybackend.dao.ParkingRepository;
+import pw.react.backend.parklybackend.model.AvailableParkingSpot;
 import pw.react.backend.parklybackend.model.Parking;
 
 import javax.validation.*;
+import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
@@ -21,6 +24,8 @@ class ParkingServiceImpl implements ParkingService {
     private final Logger logger = LoggerFactory.getLogger(ParkingServiceImpl.class);
 
     private ParkingRepository repository;
+    private AvailableParkingSpotRepository repositorySpots;
+
 
     ParkingServiceImpl() { /*Needed only for initializing spy in unit tests*/}
 
@@ -28,9 +33,10 @@ class ParkingServiceImpl implements ParkingService {
 
 
     @Autowired
-    ParkingServiceImpl(ParkingRepository repository)
+    ParkingServiceImpl(ParkingRepository repository, AvailableParkingSpotRepository repositorySpot)
     {
         this.repository = repository;
+        this.repositorySpots = repositorySpot;
     }
 
     @ResponseStatus(HttpStatus.BAD_REQUEST)
@@ -64,16 +70,108 @@ class ParkingServiceImpl implements ParkingService {
             Parking result = repository.save(parking);
             return ResponseEntity.ok("Parking is valid");
     }
+
     @Override
     public Collection<Parking> getAllParkings()
     {
         return repository.findAll();
     }
+
+    public List<Parking> filterByAll(String city, String street, int workingFrom, int workingTo) {
+        return repository.findAllByCityAndStreetAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(
+                city, street, workingFrom, workingTo);
+    }
+
+
+    public List<Parking> filterByCityAndHours(String city, int workingFrom, int workingTo) {
+        return repository.findAllByCityAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(
+                city, workingFrom, workingTo);
+    }
+
+
+    public List<Parking> filterByHoursFrom(String city, int workingFrom) {
+        return repository.findAllByCityAndWorkingHoursFromIsLessThanEqual(city, workingFrom);
+    }
+
+
+    public List<Parking> filterByHoursTo(String city, int workingTo) {
+        return repository.findAllByCityAndWorkingHoursToIsGreaterThanEqual(city, workingTo);
+    }
+
+
+    public List<Parking> filterByStreetAdnHoursFrom(String city, String street, int workingFrom) {
+        return repository.findAllByCityAndStreetAndWorkingHoursFromIsLessThanEqual(city, street, workingFrom);
+    }
+
+
+    public List<Parking> filterByStreetAndHoursTo(String city, String street, int workingTo) {
+        return repository.findAllByCityAndStreetAndWorkingHoursToIsGreaterThanEqual(city, street, workingTo);
+    }
+
+
+    @Override
+    public List<Parking> filterParkings(String city, Optional<String> street, Optional<Integer> workingHoursFrom, Optional<Integer> workingHoursTo) {
+
+        //wszystko
+        if(street.isPresent() && workingHoursFrom.isPresent() && workingHoursTo.isPresent())
+        {
+            return filterByAll(city, street.get(), workingHoursFrom.get(), workingHoursTo.get());
+        }
+        //miasto i ulica
+        else if(street.isPresent() && !workingHoursFrom.isPresent() && !workingHoursTo.isPresent())
+        {
+            return repository.findAllByCityAndStreet(city, street.get());
+        }
+        //tylko miasto
+        else if(!street.isPresent() && !workingHoursFrom.isPresent() && !workingHoursTo.isPresent())
+        {
+            return repository.findAllByCity(city);
+        }
+        //tylko miasto i obie godziny
+        else if(!street.isPresent() && workingHoursFrom.isPresent() && workingHoursTo.isPresent())
+        {
+           return filterByCityAndHours(city, workingHoursFrom.get(), workingHoursTo.get());
+        }
+        //tylko miasto i hoursFrom
+        else if(!street.isPresent() && workingHoursFrom.isPresent() && !workingHoursTo.isPresent())
+        {
+            return  filterByHoursFrom(city, workingHoursFrom.get());
+        }
+        //tylko miasto i hoursTo
+        else if(!street.isPresent() && !workingHoursFrom.isPresent() && workingHoursTo.isPresent())
+        {
+            return filterByHoursTo(city, workingHoursTo.get());
+        }
+        //miasto ulica hoursFrom
+        else if(street.isPresent() && workingHoursFrom.isPresent() && !workingHoursTo.isPresent())
+        {
+            return filterByStreetAdnHoursFrom(city, street.get(), workingHoursFrom.get());
+        }
+        //miasto ulica hoursTo
+        else if(street.isPresent() && !workingHoursFrom.isPresent() && workingHoursTo.isPresent())
+        {
+            return filterByStreetAndHoursTo(city, street.get(), workingHoursTo.get());
+        }
+        else return null;
+
+    @Override
+    public boolean addNewDates(Collection<LocalDateTime> datesToAdd, Long parkingId) {
+        Optional<Parking> parkingOpt = repository.findById(parkingId);
+        if(!parkingOpt.isPresent()) return false;
+        Parking parking = parkingOpt.get();
+        for(LocalDateTime date:datesToAdd){
+            List<AvailableParkingSpot> spotsToSave = addNewDateToParking(parking, date);
+            repositorySpots.saveAll(spotsToSave);
+        }
+        return true;
+    }
+
     @Override
     public Parking getParking(long parkingId)
     {
         return repository.findById(parkingId).orElseGet(() -> Parking.EMPTY);
     }
+
     @Override
     public boolean deleteParking(Long parkingId) {
         boolean result = false;
@@ -83,5 +181,20 @@ class ParkingServiceImpl implements ParkingService {
             result = true;
         }
         return result;
+    }
+
+    public List<AvailableParkingSpot> addNewDateToParking(Parking parking, LocalDateTime date) {
+        List<AvailableParkingSpot> spotsDates = new ArrayList<>();
+        int workingFrom = parking.getWorkingHoursFrom();
+        int workingTo = parking.getWorkingHoursTo();
+        for(int spot = 1; spot <= parking.getNumberOfSpots(); ++spot) {
+            for(int i = workingFrom; i < workingTo; ++i) {
+                LocalDateTime dateFrom = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), i, 0);
+                LocalDateTime dateTo = LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), i+1, 0);
+                AvailableParkingSpot avSpot = new AvailableParkingSpot(dateFrom, dateTo, spot, parking);
+                spotsDates.add(avSpot);
+            }
+        }
+        return spotsDates;
     }
 }

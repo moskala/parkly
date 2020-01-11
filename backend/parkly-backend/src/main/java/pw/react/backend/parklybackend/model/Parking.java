@@ -1,6 +1,6 @@
 package pw.react.backend.parklybackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.http.HttpStatus;
@@ -23,6 +23,8 @@ import java.util.Map;
 @Entity
 @Table(name = "parking") //parking czy parkings?
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 //@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Parking implements Serializable {
 
@@ -30,6 +32,7 @@ public class Parking implements Serializable {
 
     public static Parking EMPTY = new Parking();
 
+    @JsonIdentityReference(alwaysAsId = true)
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -50,26 +53,22 @@ public class Parking implements Serializable {
     private int numberOfSpots;
     @NotNull
     @Min(value = 0,message = "Working hours cannot be negative")
-    @Max(value = 23, message="Working hours cannot be more than 23")
+    @Max(value = 24, message="Working hours cannot be more than 23")
     @Column(name="workingHoursFrom")
     private int workingHoursFrom;
     @NotNull
     @Min(value = 0,message = "Working hours cannot be negative")
-    @Max(value = 23, message="Working hours cannot be more than 23")
+    @Max(value = 24, message="Working hours cannot be more than 23")
     @Column(name="workingHoursTo")
     private int workingHoursTo;
 
-
-    @NotNull
-    @Column(name = "ownerID")
-    private long ownerID;
+    @ManyToOne
+    @JoinColumn(name = "FK_ownerId")
+    private ParkingOwner ownerID;
 
     public void setId(long id) {
         this.id = id;
     }
-
-
-
 
     public long getId() {
         return id;
@@ -123,12 +122,11 @@ public class Parking implements Serializable {
         this.workingHoursTo = workingHoursTo;
     }
 
-    public long getOwnerID() {
+    public ParkingOwner getOwnerID() {
         return ownerID;
     }
 
-    public void setOwnerID(long ownerID) {
+    public void setOwnerID(ParkingOwner ownerID) {
         this.ownerID = ownerID;
     }
-
 }
