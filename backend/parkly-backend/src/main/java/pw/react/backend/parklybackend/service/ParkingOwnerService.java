@@ -2,6 +2,7 @@ package pw.react.backend.parklybackend.service;
 
 import org.springframework.http.ResponseEntity;
 import pw.react.backend.parklybackend.model.ParkingOwner;
+import pw.react.backend.parklybackend.model.Parking;
 
 import javax.validation.Valid;
 import java.util.Collection;

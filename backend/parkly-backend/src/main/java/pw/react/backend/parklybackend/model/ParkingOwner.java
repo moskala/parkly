@@ -1,6 +1,6 @@
 package pw.react.backend.parklybackend.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.*;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import org.springframework.http.HttpStatus;
@@ -8,7 +8,10 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
-
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.fasterxml.jackson.databind.annotation.JsonSerialize;
+import pw.react.backend.parklybackend.Serializer;
+import pw.react.backend.parklybackend.Deserializer;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
@@ -24,13 +27,17 @@ import java.util.Map;
 @Entity
 @Table(name = "parkingOwner")
 
+@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 //@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@JsonIdentityReference(alwaysAsId = true)
 public class ParkingOwner implements Serializable {
 
     private static final long serialVersionUID = -6783504532088859179L;
 
     public static ParkingOwner EMPTY = new ParkingOwner();
 
+    @JsonProperty("id")
+    @JsonIdentityReference(alwaysAsId = true)
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
@@ -54,7 +61,7 @@ public class ParkingOwner implements Serializable {
     private String hashPassword;
 
 
-
+    @JsonProperty("id")
     public void setId(long id) {
         this.id = id;
     }

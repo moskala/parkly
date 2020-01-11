@@ -1,24 +1,20 @@
 package pw.react.backend.parklybackend.controller;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.fasterxml.jackson.annotation.JsonProperty;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pw.react.backend.parklybackend.dao.ParkingRepository;
 import pw.react.backend.parklybackend.model.Parking;
+import pw.react.backend.parklybackend.model.Filter;
 import pw.react.backend.parklybackend.service.ParkingService;
 
 import javax.validation.Valid;
+import java.awt.image.ReplicateScaleFilter;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -52,12 +48,27 @@ public class ParkingController {
         return errors;
     }
 
+    @JsonProperty("parking")
     @PostMapping(path = "")
     public ResponseEntity<String> createParking(@RequestHeader HttpHeaders headers, @Valid @RequestBody Parking parking)
     {
         return parkingService.addParking(parking);
     }
 
+
+    //filtrowanie
+    @GetMapping(path = "/filter")
+    public ResponseEntity<Object> filter(@RequestHeader HttpHeaders headers,
+                                         @RequestParam String city, @RequestParam Optional<String> street,
+                                         @RequestParam Optional<Integer> workingHoursFrom, @RequestParam Optional<Integer> workingHoursTo)
+    {
+
+        if(city == null || city.isEmpty()) return ResponseEntity.badRequest().body(null);
+        //to do : zwalidować ulice, dodac inne filtry
+        List<Parking> parkings = parkingService.filterParkings(city, street, workingHoursFrom, workingHoursTo);
+        if(parkings != null) return ResponseEntity.ok(parkings);
+        else return ResponseEntity.badRequest().body(null);
+    }
 
     @GetMapping(path = "/{parkingId}")
     public ResponseEntity<Parking> getParking(@RequestHeader HttpHeaders headers,
@@ -78,6 +89,18 @@ public class ParkingController {
 //        }
 //        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.emptyList());
         return ResponseEntity.ok(parkingService.getAllParkings());
+    }
+
+    @GetMapping(path = "/my-parkings/{ownerId}")
+    public ResponseEntity<Collection<Parking>> getAllParkingsByOwner(@RequestHeader HttpHeaders headers,
+                                                              @PathVariable Long ownerId
+                                                              ) {
+//
+//        if (securityService.isAuthorized(headers)) {
+//            return ResponseEntity.ok(repository.findAll());
+//        }
+//        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.emptyList());
+        return ResponseEntity.ok(repository.findAllByOwnerID(ownerId));
     }
 
     @PutMapping(path = "/{parkingId}")
