@@ -7,13 +7,14 @@ import org.springframework.web.bind.annotation.*;
 import pw.react.backend.parklybackend.model.Parking;
 import pw.react.backend.parklybackend.model.Reservation;
 import pw.react.backend.parklybackend.model.ReservationCreateRequest;
+import pw.react.backend.parklybackend.model.ReservationView;
 import pw.react.backend.parklybackend.service.ReservationService;
 
 import javax.validation.Valid;
 import java.util.Collection;
 
 @RestController
-@RequestMapping(path = "/reservation")
+@RequestMapping(path = "/reservations")
 public class ReservationController {
 
     private ReservationService reservationService;
@@ -25,7 +26,7 @@ public class ReservationController {
     }
 
     @PostMapping(path = "")
-    public ResponseEntity<Reservation> createReservation(@RequestHeader HttpHeaders headers, @Valid @RequestBody ReservationCreateRequest reservation) {
+    public ResponseEntity<Reservation> createReservation(@RequestHeader HttpHeaders headers,  @PathVariable ReservationCreateRequest reservation) {
 
         Reservation res = reservationService.createReservation(reservation);
         return ResponseEntity.ok(res);
@@ -37,10 +38,16 @@ public class ReservationController {
         return ResponseEntity.ok(reservationService.getAllReservations());
     }
 
-    @GetMapping(path = "/{userToken}")
+    @GetMapping(path = "user/{userToken}")
     public ResponseEntity<Collection<Reservation>> getUserReservations(@RequestHeader HttpHeaders headers, @PathVariable String userToken) {
 
         return reservationService.getUserReservationsByToken(userToken);
+    }
+
+    @GetMapping(path="/{reservationId}")
+    public ResponseEntity<ReservationView> getReservation(@RequestHeader HttpHeaders headers,  @PathVariable String reservationId)
+    {
+        return null;
     }
 
     @PutMapping(path = "/{reservationId}")

@@ -21,7 +21,7 @@ import java.util.*;
 import static java.util.stream.Collectors.joining;
 
 @RestController
-@RequestMapping(path = "/parking") //czy parkings??
+@RequestMapping(path = "/parkings")
 //dodac security
 public class ParkingController {
 

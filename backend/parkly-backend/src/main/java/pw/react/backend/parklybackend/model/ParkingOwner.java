@@ -27,9 +27,10 @@ import java.util.Map;
 @Entity
 @Table(name = "parkingOwner")
 
-@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
+//@JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
 //@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 @JsonIdentityReference(alwaysAsId = true)
+@Access(AccessType.FIELD)
 public class ParkingOwner implements Serializable {
 
     private static final long serialVersionUID = -6783504532088859179L;
@@ -40,6 +41,7 @@ public class ParkingOwner implements Serializable {
     @JsonIdentityReference(alwaysAsId = true)
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @Access(AccessType.PROPERTY)
     private long id;
 
 

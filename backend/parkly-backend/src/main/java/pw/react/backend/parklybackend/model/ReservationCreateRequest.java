@@ -16,6 +16,7 @@ public class ReservationCreateRequest {
     private String userLastName;
     private String userEmail;
     private String userToken;
+    private int spotId;
 
     public long getParkingId() {
         return parkingId;
@@ -83,5 +84,13 @@ public class ReservationCreateRequest {
         this.userFirstName = reservation.getUserFirstName();
         this.userLastName = reservation.getUserLastName();
         this.userEmail = reservation.getUserEmail();
+    }
+
+    public int getSpotId() {
+        return spotId;
+    }
+
+    public void setSpotId(int spotId) {
+        this.spotId = spotId;
     }
 }

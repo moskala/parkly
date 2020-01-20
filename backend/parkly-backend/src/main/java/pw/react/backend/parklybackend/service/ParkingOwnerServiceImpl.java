@@ -83,17 +83,17 @@ class ParkingOwnerServiceImpl implements ParkingOwnerService {
         parkingOwner.setHashPassword(hashPassword);
         ParkingOwner result = repository.save(parkingOwner);
         return ResponseEntity.ok("Parking owner is valid");
-        //sprawdzenie mejla
-        if(repository.findByEmail(parkingOwner.getEmail()).isPresent())
-        {
-            parkingOwner.setHashPassword(Hash(parkingOwner.getHashPassword()));
-            ParkingOwner result = repository.save(parkingOwner);
-            return ResponseEntity.ok("Parking owner is valid");
-        }
-        else
-        {
-            return ResponseEntity.badRequest().body("User with this email already exists");
-        }
+//        //sprawdzenie mejla
+//        if(repository.findByEmail(parkingOwner.getEmail()).isPresent())
+//        {
+//            parkingOwner.setHashPassword(Hash(parkingOwner.getHashPassword()));
+//            ParkingOwner result = repository.save(parkingOwner);
+//            return ResponseEntity.ok("Parking owner is valid");
+//        }
+//        else
+//        {
+//            return ResponseEntity.badRequest().body("User with this email already exists");
+//        }
     }
 
     @Override

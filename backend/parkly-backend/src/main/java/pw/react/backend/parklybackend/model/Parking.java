@@ -62,6 +62,8 @@ public class Parking implements Serializable {
     @Column(name="workingHoursTo")
     private int workingHoursTo;
 
+    private  int costPerHour;
+
     @ManyToOne
     @JoinColumn(name = "FK_ownerId")
     private ParkingOwner ownerID;
