@@ -3,6 +3,7 @@ package pw.react.backend.parklybackend.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -10,6 +11,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import pw.react.backend.parklybackend.appException.InvalidArgumentException;
 import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
 import pw.react.backend.parklybackend.model.Parking;
 import pw.react.backend.parklybackend.model.ParkingOwner;
@@ -36,109 +38,49 @@ class ParkingOwnerServiceImpl implements ParkingOwnerService {
         this.repository = repository;
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-        Map<String,String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
-    }
-
     @Override
-    public ParkingOwner updateParkingOwner(Long id, ParkingOwner updatedParkingOwner) {
-        ParkingOwner result = ParkingOwner.EMPTY;
-        if (repository.existsById(id)) {
-            updatedParkingOwner.setId(id);
-
-            result = repository.save(updatedParkingOwner);
-            //logger.info("Parking with id {} updated.", id);
-
+    public ParkingOwner addParkingOwner(ParkingOwner parkingOwner)
+    {
+        if(checkIfEmailExists(parkingOwner.getEmail())){
+            throw new InvalidArgumentException("Given email already exists");
         }
-        return result;
-    }
-
-    private String Hash(String password)
-    {
-//        SecureRandom random = new SecureRandom();
-//        byte[] salt = new byte[16];
-//        random.nextBytes(salt);
-//        KeySpec spec = new PBEKeySpec(password.toCharArray(), salt, 65536, 128);
-//        SecretKeyFactory factory = SecretKeyFactory.getInstance("PBKDF2WithHmacSHA1");
-        return Integer.toString(password.hashCode());
-    }
-
-    @Override
-    public ResponseEntity<String> addParkingOwner(ParkingOwner parkingOwner)
-    {
-        Optional<ParkingOwner> alreadyExists = repository.findByEmail(parkingOwner.getEmail());
-        if(alreadyExists.isPresent()){
-            return ResponseEntity.badRequest().body("Email already exists");
+        if(validateParkingOwner(parkingOwner)){
+            return repository.save(parkingOwner);
         }
-        String hashPassword = hashPassword(parkingOwner.getHashPassword());
-        parkingOwner.setHashPassword(hashPassword);
-        ParkingOwner result = repository.save(parkingOwner);
-        return ResponseEntity.ok("Parking owner is valid");
-//        //sprawdzenie mejla
-//        if(repository.findByEmail(parkingOwner.getEmail()).isPresent())
-//        {
-//            parkingOwner.setHashPassword(Hash(parkingOwner.getHashPassword()));
-//            ParkingOwner result = repository.save(parkingOwner);
-//            return ResponseEntity.ok("Parking owner is valid");
-//        }
-//        else
-//        {
-//            return ResponseEntity.badRequest().body("User with this email already exists");
-//        }
-    }
-
-    @Override
-    public Collection<ParkingOwner> getAllParkingOwners()
-    {
-        return repository.findAll();
+        else return ParkingOwner.EMPTY;
     }
 
     @Override
     public ParkingOwner getParkingOwner(long parkingOwnerId)
     {
-        return repository.findById(parkingOwnerId).orElseGet(() -> ParkingOwner.EMPTY);
-    }
-
-    @Override
-    public boolean deleteParkingOwner(Long parkingOwnerId) {
-        boolean result = false;
-        if (repository.existsById(parkingOwnerId)) {
-            repository.deleteById(parkingOwnerId);
-            logger.info("Parking with id {} deleted.", parkingOwnerId);
-            result = true;
+        Optional<ParkingOwner> owner = repository.findById(parkingOwnerId);
+        if(owner.isPresent()){
+            return owner.get();
         }
-        return result;
+        else throw new ResourceNotFoundException(String.format("Parking owner with id %s does not exists.", parkingOwnerId));
     }
 
-    public String hashPassword(String password) {
-        // to implement: hash function
-        return password;
-    }
 
     @Override
-    public boolean authenticateUser(String email, String password){
-        String hashPassword = hashPassword(password);
-        Optional<ParkingOwner> parkingOwner = repository.findByEmail(email);
-        if(parkingOwner.isPresent() && parkingOwner.get().getHashPassword().equals(hashPassword)) {
-            return true;
-        }
-        else return false;
-    }
-
-    @Override
-    public boolean checkEmailExists(String email) {
+    public boolean checkIfEmailExists(String email) {
         Optional<ParkingOwner> alreadyExists = repository.findByEmail(email);
         if(alreadyExists.isPresent()) return true;
         return false;
     }
 
+    @Override
+    public boolean validateParkingOwner(ParkingOwner parkingOwner) {
+        String name = parkingOwner.getName();
+        String surname = parkingOwner.getSurname();
+        String email = parkingOwner.getEmail();
+        String phone = parkingOwner.getPhoneNumber();
+        String password = parkingOwner.getPassword();
+        if(name == null || name.isEmpty() || name.trim().isEmpty()) throw new InvalidArgumentException("Name cannot be null");
+        if(surname == null || surname.isEmpty() || surname.trim().isEmpty()) throw new InvalidArgumentException("Surname cannot be null");
+        if(email == null || email.isEmpty() || email.trim().isEmpty()) throw new InvalidArgumentException("Email cannot be null");
+        if(password == null || password.isEmpty() || password.trim().isEmpty()) throw new InvalidArgumentException("Password cannot be null");
+        if(phone == null || phone.isEmpty() || phone.trim().isEmpty()) throw new InvalidArgumentException("Phone cannot be null");
+
+        return true;
+    }
 }

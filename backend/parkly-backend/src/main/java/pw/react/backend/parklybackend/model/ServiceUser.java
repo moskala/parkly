@@ -1,13 +1,18 @@
 package pw.react.backend.parklybackend.model;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
+import java.io.Serializable;
 
 @Entity
-@Table(name = "User")
-public class User {
+@Table(name = "ServiceUser")
+public class ServiceUser implements Serializable {
+
+    public static ServiceUser EMPTY = new ServiceUser();
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
+    @NotNull
     private long id;
 
     @Column(name = "userName")

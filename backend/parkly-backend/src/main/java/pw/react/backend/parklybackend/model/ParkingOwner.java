@@ -44,12 +44,11 @@ public class ParkingOwner implements Serializable {
     @Access(AccessType.PROPERTY)
     private long id;
 
-
-    @Column(name = "firstName")
-    private String firstName;
+    @Column(name = "name")
+    private String name;
     @NotNull
-    @Column(name = "lastName")
-    private String lastName;
+    @Column(name = "surname")
+    private String surname;
     @NotNull
     @Email
     @Column(name="email")
@@ -57,10 +56,10 @@ public class ParkingOwner implements Serializable {
     @NotNull
 
     @Column(name = "phoneNumber")
-    private long phoneNumber;
+    private String phoneNumber;
     @NotNull
-    @Column(name="hashPassword")
-    private String hashPassword;
+    @Column(name="password")
+    private String password;
 
 
     @JsonProperty("id")
@@ -68,28 +67,10 @@ public class ParkingOwner implements Serializable {
         this.id = id;
     }
 
-
-
-
     public long getId() {
         return id;
     }
 
-    public String getFirstName() {
-        return firstName;
-    }
-
-    public void setFirstName(String firstName) {
-        this.firstName = firstName;
-    }
-
-    public String getLastName() {
-        return lastName;
-    }
-
-    public void setLastName(String lastName) {
-        this.lastName = lastName;
-    }
 
     public String getEmail() {
         return email;
@@ -99,20 +80,36 @@ public class ParkingOwner implements Serializable {
         this.email = email;
     }
 
-    public long getPhoneNumber() {
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public String getSurname() {
+        return surname;
+    }
+
+    public void setSurname(String surname) {
+        this.surname = surname;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public String getPhoneNumber() {
         return phoneNumber;
     }
 
-    public void setPhoneNumber(long phoneNumber) {
+    public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
     }
-
-    public String getHashPassword() {
-        return hashPassword;
-    }
-
-    public void setHashPassword(String hashPassword) {
-        this.hashPassword = hashPassword;
-    }
-
 }
