@@ -1,6 +1,7 @@
 package pw.react.backend.parklybackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -133,7 +134,7 @@ class ParkingServiceImpl implements ParkingService {
     }
 
     @Override
-    public Collection<ParkingDto> getAllParkingsByOnwerId(long ownerId) {
+    public Collection<ParkingDto> getAllParkingsByOnwerId(Long ownerId) {
         if(ownerRepository.existsById(ownerId)){
 
             return getParkingDtoCollection(parkingRepository.findAllByOwner(ownerId));
@@ -142,43 +143,59 @@ class ParkingServiceImpl implements ParkingService {
     }
 
     @Override
-    public Collection<ParkingDto> filterParkings(String city, Optional<String> street, Optional<Integer> workingHoursFrom, Optional<Integer> workingHoursTo) {
+    public Collection<ParkingDto> filterParkings(Optional<String> city, Optional<String> street, Optional<Integer> workingHoursFrom, Optional<Integer> workingHoursTo) {
 
         List<Parking> filterResults;
         //wszystko
         if (street.isPresent() && workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
-            filterResults = filterByAll(city, street.get(), workingHoursFrom.get(), workingHoursTo.get());
+            filterResults = filterByAll(city.get(), street.get(), workingHoursFrom.get(), workingHoursTo.get());
         }
         //miasto i ulica
         else if (street.isPresent() && !workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
-            filterResults = parkingRepository.findAllByCityAndStreet(city, street.get());
+            filterResults = parkingRepository.findAllByCityAndStreet(city.get(), street.get());
         }
         //tylko miasto
         else if (!street.isPresent() && !workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
-            filterResults = parkingRepository.findAllByCity(city);
+            filterResults = parkingRepository.findAllByCity(city.get());
         }
         //tylko miasto i obie godziny
         else if (!street.isPresent() && workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
-            filterResults = filterByCityAndHours(city, workingHoursFrom.get(), workingHoursTo.get());
+            filterResults = filterByCityAndHours(city.get(), workingHoursFrom.get(), workingHoursTo.get());
         }
         //tylko miasto i hoursFrom
         else if (!street.isPresent() && workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
-            filterResults = filterByHoursFrom(city, workingHoursFrom.get());
+            filterResults = filterByHoursFrom(city.get(), workingHoursFrom.get());
         }
         //tylko miasto i hoursTo
         else if (!street.isPresent() && !workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
-            filterResults = filterByHoursTo(city, workingHoursTo.get());
+            filterResults = filterByHoursTo(city.get(), workingHoursTo.get());
         }
         //miasto ulica hoursFrom
         else if (street.isPresent() && workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
-            filterResults = filterByStreetAndHoursFrom(city, street.get(), workingHoursFrom.get());
+            filterResults = filterByStreetAndHoursFrom(city.get(), street.get(), workingHoursFrom.get());
         }
         //miasto ulica hoursTo
         else if (street.isPresent() && !workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
-            filterResults = filterByStreetAndHoursTo(city, street.get(), workingHoursTo.get());
+            filterResults = filterByStreetAndHoursTo(city.get(), street.get(), workingHoursTo.get());
         } else return null;
 
         return getParkingDtoCollection(filterResults);
+    }
+
+    @Override
+    public Collection<ParkingDto> filterParkingsForOwnerId(Long ownerId, Optional<String> city, Optional<String> street, Optional<Integer> workingFrom, Optional<Integer> workingTo) {
+
+            Parking parking = Parking.EMPTY;
+            parking.setOwner(getParkingOwner(ownerId));
+
+            if(city.isPresent()) parking.setCity(city.get());
+            if(street.isPresent()) parking.setStreet(street.get());
+            if(workingFrom.isPresent()) parking.setWorkingHoursFrom(workingFrom.get());
+            if(workingTo.isPresent()) parking.setWorkingHoursTo(workingTo.get());
+
+            List<Parking> filterResults = parkingRepository.findAll(Example.of(parking));
+
+            return getParkingDtoCollection(filterResults);
     }
 
     @Override

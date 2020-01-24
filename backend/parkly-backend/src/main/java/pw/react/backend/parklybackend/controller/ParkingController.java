@@ -108,15 +108,28 @@ public class ParkingController {
     }
 
 
-    @GetMapping(path = "/filter")
-    public ResponseEntity<?> filter(@RequestHeader HttpHeaders headers,
-                                         @RequestParam String city, @RequestParam Optional<String> street,
-                                         @RequestParam Optional<Integer> workingHoursFrom, @RequestParam Optional<Integer> workingHoursTo) {
+//    @GetMapping(path = "/filter")
+//    public ResponseEntity<?> filter(@RequestHeader HttpHeaders headers,
+//                                         @RequestParam String city, @RequestParam Optional<String> street,
+//                                         @RequestParam Optional<Integer> workingHoursFrom, @RequestParam Optional<Integer> workingHoursTo) {
+//
+//        if(city == null || city.isEmpty()) return ResponseEntity.badRequest().body(null);
+//        //to do : zwalidować ulice, dodac inne filtry
+//        Collection<ParkingDto> parkings = parkingService.filterParkings(city, street, workingHoursFrom, workingHoursTo);
+//        if(parkings != null) return ResponseEntity.ok(parkings);
+//        else return ResponseEntity.badRequest().body(null);
+//    }
 
-        if(city == null || city.isEmpty()) return ResponseEntity.badRequest().body(null);
+    @GetMapping(path = "/my-parkings/filter")
+    public ResponseEntity<?> filterForParkingOwner(@RequestHeader HttpHeaders headers, @RequestParam Long ownerId,
+                                    @RequestParam Optional<String> city, @RequestParam Optional<String> street,
+                                    @RequestParam Optional<Integer> workingHoursFrom, @RequestParam Optional<Integer> workingHoursTo) {
+
         //to do : zwalidować ulice, dodac inne filtry
-        Collection<ParkingDto> parkings = parkingService.filterParkings(city, street, workingHoursFrom, workingHoursTo);
+        Collection<ParkingDto> parkings = parkingService.filterParkingsForOwnerId(ownerId, city, street, workingHoursFrom, workingHoursTo);
         if(parkings != null) return ResponseEntity.ok(parkings);
         else return ResponseEntity.badRequest().body(null);
     }
+
+
 }
