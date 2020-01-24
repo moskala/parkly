@@ -8,6 +8,7 @@ import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
+import pw.react.backend.parklybackend.dto.ParkingDto;
 
 
 import javax.persistence.*;
@@ -21,14 +22,10 @@ import java.util.Map;
 
 
 @Entity
-@Table(name = "parking") //parking czy parkings?
-
+@Table(name = "Parking")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIdentityInfo(generator = ObjectIdGenerators.PropertyGenerator.class, property = "id")
-//@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Parking implements Serializable {
-
-    private static final long serialVersionUID = -6783504532088859179L;
 
     public static Parking EMPTY = new Parking();
 
@@ -37,36 +34,27 @@ public class Parking implements Serializable {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
 
-
     @Column(name = "city")
     private String city;
-    @NotNull
+
     @Column(name = "street")
     private String street;
-    @NotNull
-    @Min(value = 1, message = "Street number has to be greater than 0")
+
     @Column(name="streetNumber")
     private int streetNumber;
-    @NotNull
-    @Min(value=1,message = "Number of spots has to be greater than 0")
-    @Column(name = "numberOfSpots")
-    private int numberOfSpots;
-    @NotNull
-    @Min(value = 0,message = "Working hours cannot be negative")
-    @Max(value = 24, message="Working hours cannot be more than 23")
+
     @Column(name="workingHoursFrom")
     private int workingHoursFrom;
-    @NotNull
-    @Min(value = 0,message = "Working hours cannot be negative")
-    @Max(value = 24, message="Working hours cannot be more than 23")
+
     @Column(name="workingHoursTo")
     private int workingHoursTo;
 
+    @Column(name="costPerHour")
     private  int costPerHour;
 
     @ManyToOne
-    @JoinColumn(name = "FK_ownerId")
-    private ParkingOwner ownerID;
+    @JoinColumn(name = "ownerId")
+    private ParkingOwner owner;
 
     public void setId(long id) {
         this.id = id;
@@ -100,14 +88,6 @@ public class Parking implements Serializable {
         this.streetNumber = streetNumber;
     }
 
-    public int getNumberOfSpots() {
-        return numberOfSpots;
-    }
-
-    public void setNumberOfSpots(int numberOfSpots) {
-        this.numberOfSpots = numberOfSpots;
-    }
-
     public int getWorkingHoursFrom() {
         return workingHoursFrom;
     }
@@ -124,11 +104,48 @@ public class Parking implements Serializable {
         this.workingHoursTo = workingHoursTo;
     }
 
-    public ParkingOwner getOwnerID() {
-        return ownerID;
+    public ParkingOwner getOwner() {
+        return owner;
     }
 
-    public void setOwnerID(ParkingOwner ownerID) {
-        this.ownerID = ownerID;
+    public void setOwner(ParkingOwner ownerID) {
+        this.owner = ownerID;
     }
+
+    public int getCostPerHour() {
+        return costPerHour;
+    }
+
+    public void setCostPerHour(int costPerHour) {
+        this.costPerHour = costPerHour;
+    }
+
+    public static Parking valueFrom(@NotNull ParkingDto parkingDto){
+        Parking parking = new Parking();
+        parking.setId(parkingDto.getId());
+        parking.setCity(parkingDto.getCity());
+        parking.setStreet(parkingDto.getStreet());
+        parking.setStreetNumber(parkingDto.getStreetNumber());
+        parking.setCostPerHour(parkingDto.getCostPerHour());
+        parking.setWorkingHoursFrom(parkingDto.getWorkingHoursFrom());
+        parking.setWorkingHoursTo(parkingDto.getWorkingHoursTo());
+
+        return parking;
+    }
+
+    public static boolean isAddressPartValid(String address){
+        if(address == null || address.isEmpty() || address.trim().isEmpty() || !address.matches("^[a-zA-Z]*$")) return false;
+        return true;
+    }
+
+    public static boolean isNumberValid(int number){
+        if(number < 1) return false;
+        return true;
+    }
+
+    public static boolean areWorkingHoursValid(int hour){
+        if(hour < 0 || hour > 24) return false;
+        return true;
+    }
+
 }

@@ -35,15 +35,6 @@ public class Reservation {
 
     public Reservation(){}
 
-    public Reservation(ReservationCreateRequest request) {
-        dateFrom = request.getDateFrom();
-        dateTo = request.getDateTo();
-        userFirstName = request.getUserFirstName();
-        userLastName = request.getUserLastName();
-        userEmail = request.getUserEmail();
-        userToken = request.getUserToken();
-    }
-
     public Parking getParkingId() {
         return parkingId;
     }

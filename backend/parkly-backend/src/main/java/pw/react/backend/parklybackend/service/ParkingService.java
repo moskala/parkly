@@ -1,6 +1,7 @@
 package pw.react.backend.parklybackend.service;
 
 import org.springframework.http.ResponseEntity;
+import pw.react.backend.parklybackend.dto.ParkingDto;
 import pw.react.backend.parklybackend.model.Parking;
 
 import javax.validation.Valid;
@@ -13,11 +14,12 @@ import java.util.Optional;
 
 
 public interface ParkingService {
-    Parking updateParking(Long id, Parking updatedParking);
+    ParkingDto updateParking(Long id, ParkingDto updatedParking);
     boolean deleteParking(Long parkingId);
-    ResponseEntity<String> addParking(Parking parking);
-    Parking getParking(long parkingId);
-    Collection<Parking> getAllParkings();
-    List<Parking> filterParkings(String city, Optional<String> street, Optional<Integer> workingFrom, Optional<Integer> workingTo);
-    boolean addNewDates(Collection<LocalDateTime> datesToAdd, Long parkingId);
+    ParkingDto addParking(ParkingDto parking);
+    ParkingDto getParking(long parkingId);
+    Collection<ParkingDto> getAllParkings();
+    Collection<ParkingDto> getAllParkingsByOnwerId(long parkingOwnerId);
+    Collection<ParkingDto> filterParkings(String city, Optional<String> street, Optional<Integer> workingFrom, Optional<Integer> workingTo);
+    boolean isParkingValid(Parking parking);
 }
