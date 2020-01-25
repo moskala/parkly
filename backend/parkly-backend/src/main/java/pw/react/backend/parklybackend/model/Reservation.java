@@ -16,8 +16,11 @@ public class Reservation {
     @GeneratedValue(strategy = GenerationType.AUTO)
     private long id;
     @ManyToOne
+    @JoinColumn(name="spotId")
+    private ParkingSpot parkingSpot;
+    @ManyToOne
     @JoinColumn(name="parkingId")
-    private Parking parkingId;
+    private Parking parking;
     @Column(name = "dateFrom")
     private LocalDateTime dateFrom;
     @Column(name = "dateTo")
@@ -28,20 +31,12 @@ public class Reservation {
     private String userLastName;
     @Column(name = "userEmail")
     private String userEmail;
-    @Column(name = "userToken")
-    private String userToken;
+    @Column(name="totalCost")
+    private int totalCost;
     @Column(name = "createdAt")
     private LocalDateTime createdAt;
 
     public Reservation(){}
-
-    public Parking getParkingId() {
-        return parkingId;
-    }
-
-    public void setParkingId(Parking parkingId) {
-        this.parkingId = parkingId;
-    }
 
     public LocalDateTime getDateFrom() {
         return dateFrom;
@@ -55,7 +50,7 @@ public class Reservation {
         return dateTo;
     }
 
-    public void setDateTo(Date LocalDateTime) {
+    public void setDateTo(LocalDateTime LocalDateTime) {
         this.dateTo = dateTo;
     }
 
@@ -99,11 +94,27 @@ public class Reservation {
         this.id = id;
     }
 
-    public String getUserToken() {
-        return userToken;
+    public ParkingSpot getParkingSpot() {
+        return parkingSpot;
     }
 
-    public void setUserToken(String userToken) {
-        this.userToken = userToken;
+    public void setParkingSpot(ParkingSpot parkingSpot) {
+        this.parkingSpot = parkingSpot;
+    }
+
+    public int getTotalCost() {
+        return totalCost;
+    }
+
+    public void setTotalCost(int totalCost) {
+        this.totalCost = totalCost;
+    }
+
+    public Parking getParking() {
+        return parking;
+    }
+
+    public void setParking(Parking parking) {
+        this.parking = parking;
     }
 }
