@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
+import pw.react.backend.parklybackend.dto.LoggedUserDto;
 import pw.react.backend.parklybackend.model.Parking;
 import pw.react.backend.parklybackend.model.ParkingOwner;
 import pw.react.backend.parklybackend.service.ParkingOwnerService;
@@ -25,6 +26,7 @@ import java.util.*;
 
 import static java.util.stream.Collectors.joining;
 
+@CrossOrigin
 @RestController
 @RequestMapping(path = "/parking-owner")
 public class ParkingOwnerController {
@@ -55,14 +57,14 @@ public class ParkingOwnerController {
     }
 
 
-    @PostMapping(path = "/login")
-    public ResponseEntity<String> logInUser(@RequestHeader HttpHeaders headers) {
+    @GetMapping(path = "/login")
+    public ResponseEntity<LoggedUserDto> logInUser(@RequestHeader HttpHeaders headers) {
 
-        Optional<String> token = securityService.authenticateParkingOwner(headers);
-        if(token.isPresent()){
-            return ResponseEntity.ok(token.get());
+        Optional<LoggedUserDto> dto = securityService.authenticateParkingOwner(headers);
+        if(dto.isPresent()){
+            return ResponseEntity.ok(dto.get());
         }
-        else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Incorrect email or password");
+        else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(LoggedUserDto.EMPTY);
     }
 
     @GetMapping(path="/email")

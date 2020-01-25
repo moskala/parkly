@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service;
 import pw.react.backend.parklybackend.appException.ResourceNotFoundException;
 import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
 import pw.react.backend.parklybackend.dao.ServiceUserRepository;
+import pw.react.backend.parklybackend.dto.LoggedUserDto;
+import pw.react.backend.parklybackend.model.Parking;
 import pw.react.backend.parklybackend.model.ParkingOwner;
 import pw.react.backend.parklybackend.model.ServiceUser;
 
@@ -38,7 +40,7 @@ public class SecurityServiceImpl implements SecurityService {
             String email = headers.getFirst(USER_EMAIL);
             String password = headers.getFirst(USER_PASSWORD);
             Optional<ParkingOwner> parkingOwner = parkingOwnerRepository.findByEmail(email);
-            if (parkingOwner.isPresent() && parkingOwner.get().equals(password)) {
+            if (parkingOwner.isPresent() && parkingOwner.get().getPassword().equals(password)) {
                 return true;
             } else return false;
         }
@@ -59,12 +61,17 @@ public class SecurityServiceImpl implements SecurityService {
     }
 
     @Override
-    public Optional<String> authenticateParkingOwner(HttpHeaders headers) {
+    public Optional<LoggedUserDto> authenticateParkingOwner(HttpHeaders headers) {
 
         if(headers.containsKey(USER_NAME) && isAuthenticated(headers)){
-            Optional<ServiceUser> user = serviceUserRepository.findByUserName(headers.getFirst(headers.getFirst(USER_NAME)));
+            String user_name = headers.getFirst(USER_NAME);
+            Optional<ServiceUser> user = serviceUserRepository.findByUserName(user_name);
             if(!user.isPresent()) throw new ResourceNotFoundException("Service User do not exists");
-            return Optional.of(user.get().getUserToken());
+            Optional<ParkingOwner> parkingOwner = parkingOwnerRepository.findByEmail(headers.getFirst(USER_EMAIL));
+            LoggedUserDto dto = new LoggedUserDto();
+            dto.setId(parkingOwner.get().getId());
+            dto.setUserToken(user.get().getUserToken());
+            return Optional.of(dto);
         }
         return Optional.empty();
     }
