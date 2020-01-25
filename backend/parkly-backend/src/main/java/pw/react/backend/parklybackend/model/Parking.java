@@ -1,25 +1,11 @@
 package pw.react.backend.parklybackend.model;
 
 import com.fasterxml.jackson.annotation.*;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.fasterxml.jackson.databind.annotation.JsonSerialize;
-import org.springframework.http.HttpStatus;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import pw.react.backend.parklybackend.dto.ParkingDto;
 
-
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
-import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.Map;
-
 
 @Entity
 @Table(name = "Parking")
@@ -125,16 +111,16 @@ public class Parking implements Serializable {
         parking.setId(parkingDto.getId());
         parking.setCity(parkingDto.getCity());
         parking.setStreet(parkingDto.getStreet());
-        parking.setStreetNumber(parkingDto.getStreetNumber());
-        parking.setCostPerHour(parkingDto.getCostPerHour());
-        parking.setWorkingHoursFrom(parkingDto.getWorkingHoursFrom());
-        parking.setWorkingHoursTo(parkingDto.getWorkingHoursTo());
+        parking.setStreetNumber(parkingDto.getNumber());
+        parking.setCostPerHour(parkingDto.getPrice());
+        parking.setWorkingHoursFrom(parkingDto.getOpens());
+        parking.setWorkingHoursTo(parkingDto.getCloses());
 
         return parking;
     }
 
     public static boolean isAddressPartValid(String address){
-        if(address == null || address.isEmpty() || address.trim().isEmpty() || !address.matches("^[a-zA-Z]*$")) return false;
+        if(address == null || address.isEmpty() || address.trim().isEmpty()) return false;
         return true;
     }
 

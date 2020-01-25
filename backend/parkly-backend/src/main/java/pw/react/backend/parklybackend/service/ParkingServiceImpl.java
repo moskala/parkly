@@ -71,7 +71,7 @@ class ParkingServiceImpl implements ParkingService {
                 parking.setId(id);
                 parking.setOwner(getParkingOwner(parkingRequest.getOwnerId()));
                 Parking parkingUpdated =  parkingRepository.save(parking);
-                addParkingSpots(parkingRequest.getNumberOfSpots(), parkingUpdated);
+                addParkingSpots(parkingRequest.getSpotsNumber(), parkingUpdated);
 
                 return getParkingDto(parkingUpdated);
             }
@@ -120,7 +120,7 @@ class ParkingServiceImpl implements ParkingService {
 
             parking.setOwner(getParkingOwner(parkingRequest.getOwnerId()));
             Parking parkingSaved = parkingRepository.save(parking);
-            addParkingSpots(parkingRequest.getNumberOfSpots(), parkingSaved);
+            addParkingSpots(parkingRequest.getSpotsNumber(), parkingSaved);
 
             return getParkingDto(parkingSaved);
         }
@@ -185,15 +185,17 @@ class ParkingServiceImpl implements ParkingService {
     @Override
     public Collection<ParkingDto> filterParkingsForOwnerId(Long ownerId, Optional<String> city, Optional<String> street, Optional<Integer> workingFrom, Optional<Integer> workingTo) {
 
-            Parking parking = Parking.EMPTY;
-            parking.setOwner(getParkingOwner(ownerId));
+            String cityVal = null;
+            String streetVal = null;
+            Integer workingToVal = null;
+            Integer workingFromVal = null;
 
-            if(city.isPresent()) parking.setCity(city.get());
-            if(street.isPresent()) parking.setStreet(street.get());
-            if(workingFrom.isPresent()) parking.setWorkingHoursFrom(workingFrom.get());
-            if(workingTo.isPresent()) parking.setWorkingHoursTo(workingTo.get());
+            if(city.isPresent()) cityVal = city.get();
+            if(street.isPresent()) streetVal = street.get();
+            if(workingFrom.isPresent()) workingFromVal = workingFrom.get();
+            if(workingTo.isPresent()) workingToVal = workingTo.get();
 
-            List<Parking> filterResults = parkingRepository.findAll(Example.of(parking));
+            List<Parking> filterResults = parkingRepository.findByOwnerIdAndParams(ownerId, cityVal, streetVal, workingFromVal, workingToVal);
 
             return getParkingDtoCollection(filterResults);
     }
@@ -211,7 +213,7 @@ class ParkingServiceImpl implements ParkingService {
     }
 
     private void isNumberOfSpotsValid(ParkingDto parking){
-        if (!Parking.isNumberValid(parking.getNumberOfSpots())) throw new InvalidArgumentException("Number of spots has to be greater than 0");
+        if (!Parking.isNumberValid(parking.getSpotsNumber())) throw new InvalidArgumentException("Number of spots has to be greater than 0");
     }
 
 
@@ -285,7 +287,7 @@ class ParkingServiceImpl implements ParkingService {
 
     private void setNumberOfSpots(ParkingDto parkingDto){
         int numberOfSpots = spotRepository.countAllByParkingId(parkingDto.getId());
-        parkingDto.setNumberOfSpots(numberOfSpots);
+        parkingDto.setSpotsNumber(numberOfSpots);
     }
 
     private Collection<ParkingDto> getParkingDtoCollection(Collection<Parking> parkings){

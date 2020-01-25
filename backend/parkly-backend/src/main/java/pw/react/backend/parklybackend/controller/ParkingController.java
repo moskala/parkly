@@ -120,15 +120,16 @@ public class ParkingController {
 //        else return ResponseEntity.badRequest().body(null);
 //    }
 
-    @GetMapping(path = "/my-parkings/filter")
-    public ResponseEntity<?> filterForParkingOwner(@RequestHeader HttpHeaders headers, @RequestParam Long ownerId,
+    @GetMapping(path = "/filter")
+    public ResponseEntity<Collection<ParkingDto>> filterForParkingOwner(@RequestHeader HttpHeaders headers, @RequestParam Long ownerId,
                                     @RequestParam Optional<String> city, @RequestParam Optional<String> street,
                                     @RequestParam Optional<Integer> workingHoursFrom, @RequestParam Optional<Integer> workingHoursTo) {
 
-        //to do : zwalidować ulice, dodac inne filtry
-        Collection<ParkingDto> parkings = parkingService.filterParkingsForOwnerId(ownerId, city, street, workingHoursFrom, workingHoursTo);
-        if(parkings != null) return ResponseEntity.ok(parkings);
-        else return ResponseEntity.badRequest().body(null);
+        if (securityService.isAuthorized(headers)) {
+            Collection<ParkingDto> parkings = parkingService.filterParkingsForOwnerId(ownerId, city, street, workingHoursFrom, workingHoursTo);
+            return ResponseEntity.ok(parkings);
+        }
+        else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.EMPTY_LIST);
     }
 
 
