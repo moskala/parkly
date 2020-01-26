@@ -17,6 +17,7 @@ import java.util.*;
 
 import static java.util.stream.Collectors.joining;
 
+@CrossOrigin
 @RestController
 @RequestMapping(path = "/parkings")
 public class ParkingController {
@@ -106,19 +107,6 @@ public class ParkingController {
         }
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Unauthorized access to resources.");
     }
-
-
-//    @GetMapping(path = "/filter")
-//    public ResponseEntity<?> filter(@RequestHeader HttpHeaders headers,
-//                                         @RequestParam String city, @RequestParam Optional<String> street,
-//                                         @RequestParam Optional<Integer> workingHoursFrom, @RequestParam Optional<Integer> workingHoursTo) {
-//
-//        if(city == null || city.isEmpty()) return ResponseEntity.badRequest().body(null);
-//        //to do : zwalidować ulice, dodac inne filtry
-//        Collection<ParkingDto> parkings = parkingService.filterParkings(city, street, workingHoursFrom, workingHoursTo);
-//        if(parkings != null) return ResponseEntity.ok(parkings);
-//        else return ResponseEntity.badRequest().body(null);
-//    }
 
     @GetMapping(path = "/filter")
     public ResponseEntity<Collection<ParkingDto>> filterForParkingOwner(@RequestHeader HttpHeaders headers, @RequestParam Long ownerId,

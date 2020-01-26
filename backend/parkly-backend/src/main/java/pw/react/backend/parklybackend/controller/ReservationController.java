@@ -9,10 +9,12 @@ import pw.react.backend.parklybackend.dto.ReservationDto;
 import pw.react.backend.parklybackend.service.ReservationService;
 import pw.react.backend.parklybackend.service.SecurityService;
 
+import javax.validation.Valid;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
 
+@CrossOrigin
 @RestController
 @RequestMapping(path = "/reservations")
 public class ReservationController {
@@ -27,7 +29,7 @@ public class ReservationController {
     }
 
     @PostMapping(path = "")
-    public ResponseEntity<?> createReservation(@RequestHeader HttpHeaders headers,  @PathVariable ReservationDto reservation) {
+    public ResponseEntity<?> createReservation(@RequestHeader HttpHeaders headers, @Valid @RequestBody ReservationDto reservation) {
 
         if (securityService.isAuthorized(headers)) {
             Optional<ReservationDto> reservationDto = reservationService.createReservation(reservation);
@@ -77,6 +79,14 @@ public class ReservationController {
                                                                          @RequestParam Optional<Integer> totalCostFrom,  @RequestParam Optional<Integer> totalCostTo) {
         if (securityService.isAuthorized(headers)) {
             return ResponseEntity.ok(reservationService.filterReservations(ownerId, city, street, totalCostFrom, totalCostTo));
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Collections.emptyList());
+    }
+
+    @GetMapping(path = "/parking/{parkingId}")
+    public ResponseEntity<Collection<ReservationDto>> getAllReservationsByParking(@RequestHeader HttpHeaders headers, @PathVariable Long parkingId) {
+        if (securityService.isAuthorized(headers)) {
+            return ResponseEntity.ok(reservationService.getAllReservationsByParking(parkingId));
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Collections.emptyList());
     }

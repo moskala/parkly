@@ -1,6 +1,7 @@
 package pw.react.backend.parklybackend.service;
 
 import javassist.NotFoundException;
+import org.apache.tomcat.jni.Local;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import pw.react.backend.parklybackend.model.Parking;
 import pw.react.backend.parklybackend.model.ParkingSpot;
 import pw.react.backend.parklybackend.model.Reservation;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -49,6 +51,17 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Optional<ReservationDto> createReservation(ReservationDto reservation) {
+        Reservation res = createReservationFromDto(reservation);
+        Optional<ParkingSpot> spot = findParkingSpot(reservation.getParkingId(), res.getDateFrom(), res.getDateTo());
+        if(spot.isPresent()){
+            res.setParkingSpot(spot.get());
+            int totalCost = countTotalCost(reservation.getParkingId(), reservation.getDateFrom(), reservation.getDateTo());
+            res.setTotalCost(totalCost);
+            //res.setParking(parkingRepository.findById(reservation.getParkingId()).get());
+            res.setCreatedAt();
+            reservationRepository.save(res);
+            return Optional.of(createReservationDtoFromValue(res));
+        }
         return Optional.empty();
     }
 
@@ -58,10 +71,11 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Collection<ReservationDto> getReservationsByParking(Long parkingId) {
+    public Collection<ReservationDto> getAllReservationsByParking(Long parkingId) {
 
         if(parkingRepository.existsById(parkingId)){
-            return getReservationDtoCollection(reservationRepository.findAllByParkingId(parkingId));
+            List<Reservation> res = reservationRepository.findAllByParkingSpotParkingId(parkingId);
+            return getReservationDtoCollection(reservationRepository.findAllReservationsBySpotByParkingId(parkingId));
         }
         else throw new ResourceNotFoundException(String.format("Parking with id %s does not exists.", parkingId));
     }
@@ -143,6 +157,23 @@ public class ReservationServiceImpl implements ReservationService {
         return res;
     }
 
+    private Optional<ParkingSpot> findParkingSpot(Long parkingId, LocalDateTime dateFrom, LocalDateTime dateTo){
+        List<ParkingSpot> spots = spotRepository.findAllByParkingId(parkingId);
+        // TO DO: sprawdzanie miejscc po dacie
+        return Optional.of(spots.get(0));
 
+    }
+
+    private int countTotalCost(Long parkingId, LocalDateTime dateFrom, LocalDateTime dateTo){
+        Optional<Parking> parking = parkingRepository.findById(parkingId);
+        if(parking.isPresent()){
+            int costPerHour = parking.get().getCostPerHour();
+            Duration duration = Duration.between(dateTo, dateFrom);
+            long totalHours = Math.abs(duration.toHours());
+            return costPerHour * (int)totalHours;
+
+        } else throw new ResourceNotFoundException(String.format("Parking with id %s does not exists.", parkingId));
+
+    }
 
 }

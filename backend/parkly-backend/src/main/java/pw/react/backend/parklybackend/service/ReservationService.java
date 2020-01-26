@@ -16,7 +16,7 @@ public interface ReservationService {
 
     Collection<ReservationDto> getAllReservations();
 
-    Collection<ReservationDto> getReservationsByParking(Long parkingId);
+    Collection<ReservationDto> getAllReservationsByParking(Long parkingId);
 
     boolean deleteReservation(Long reservationId);
 
@@ -24,5 +24,6 @@ public interface ReservationService {
 
     Collection<ReservationDto> filterReservations(Long ownerId, Optional<String> city, Optional<String> street,
                                                   Optional<Integer> incomeFrom, Optional<Integer> incomeTo);
+
 
 }

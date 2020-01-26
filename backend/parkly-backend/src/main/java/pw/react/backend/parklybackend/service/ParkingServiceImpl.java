@@ -3,6 +3,7 @@ package pw.react.backend.parklybackend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -93,6 +94,7 @@ class ParkingServiceImpl implements ParkingService {
     }
 
     @Override
+    @Transactional
     public boolean deleteParking(Long parkingId) {
 
         if(existReservationsForParking(parkingId)){
@@ -137,7 +139,7 @@ class ParkingServiceImpl implements ParkingService {
     public Collection<ParkingDto> getAllParkingsByOnwerId(Long ownerId) {
         if(ownerRepository.existsById(ownerId)){
 
-            return getParkingDtoCollection(parkingRepository.findAllByOwner(ownerId));
+            return getParkingDtoCollection(parkingRepository.findAllByOwnerId(ownerId));
         }
         else throw new ResourceNotFoundException(String.format("Parking owner with id %s does not exists.", ownerId));
     }
@@ -250,10 +252,11 @@ class ParkingServiceImpl implements ParkingService {
 
     private boolean existReservationsForParking(Long parkingId) {
         LocalDateTime today = LocalDateTime.now();
-        List<Reservation> reservations = reservationRepository.findAllByParkingIdAndDateToGreaterThanEqual(parkingId, today);
-        if(reservations.isEmpty()){
-            return true;
-        }
+        //List<Reservation> reservations = reservationRepository.findAllByParkingIdAndDateToGreaterThanEqual(parkingId, today);
+//        if(reservations.isEmpty()){
+//            return false;
+//        }
+//        return true;
         return false;
     }
 

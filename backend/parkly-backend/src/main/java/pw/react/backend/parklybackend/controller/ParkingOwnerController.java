@@ -68,9 +68,9 @@ public class ParkingOwnerController {
     }
 
     @GetMapping(path="/email")
-    public ResponseEntity<String> checkIsEmailUnique(@RequestHeader HttpHeaders headers, @RequestParam String email){
+    public ResponseEntity<String> checkIsEmailUnique(@RequestHeader HttpHeaders headers, @RequestParam String emailAddress){
 
-        if(parkingOwnerService.checkIfEmailExists(email)){
+        if(parkingOwnerService.checkIfEmailExists(emailAddress)){
             return ResponseEntity.status(HttpStatus.SEE_OTHER).body("Email already exists in service");
         }
         else return ResponseEntity.ok("Email is unique");
