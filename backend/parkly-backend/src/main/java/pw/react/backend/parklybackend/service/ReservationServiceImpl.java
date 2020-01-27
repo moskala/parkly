@@ -106,13 +106,14 @@ public class ReservationServiceImpl implements ReservationService {
             if(street.isPresent()) streetParam = street.get();
             if(incomeFrom.isPresent()) costFrom = incomeFrom.get();
             if(incomeTo.isPresent()) costTo = incomeTo.get();
-            return getReservationDtoCollection(reservationRepository.findReservationsWithParams(ownerId, cityParam, streetParam, costFrom, costTo));
+            List<Reservation> res = reservationRepository.findReservationsWithParams(ownerId, cityParam, streetParam, costFrom, costTo);
+            return getReservationDtoCollection(res);
         }
         else throw new ResourceNotFoundException(String.format("Parking owner with id %s does not exists.", ownerId));
     }
 
     private ReservationDto createReservationDtoFromValue(Reservation reservation){
-        ReservationDto dto = ReservationDto.EMPTY;
+        ReservationDto dto = new ReservationDto();
 
         dto.setId(reservation.getId());
         dto.setSpotId(reservation.getParkingSpot().getSpotId());
@@ -135,7 +136,7 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     private Reservation createReservationFromDto(ReservationDto dto){
-        Reservation res = Reservation.EMPTY;
+        Reservation res = new Reservation();
 
         res.setDateFrom(dto.getDateFrom());
         res.setDateTo(dto.getDateTo());
@@ -147,12 +148,11 @@ public class ReservationServiceImpl implements ReservationService {
         return res;
     }
 
-    private Collection<ReservationDto> getReservationDtoCollection(Collection<Reservation> reservations){
+    private List<ReservationDto> getReservationDtoCollection(List<Reservation> reservations){
 
-        List<ReservationDto> res = new ArrayList<ReservationDto>(reservations.size());
+        List<ReservationDto> res = new ArrayList<>();
         for (Reservation reservation : reservations) {
-            ReservationDto dto = createReservationDtoFromValue(reservation);
-            res.add(dto);
+            res.add(createReservationDtoFromValue(reservation));
         }
         return res;
     }
