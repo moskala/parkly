@@ -114,7 +114,7 @@ public class ParkingController {
                                     @RequestParam Optional<Integer> workingHoursFrom, @RequestParam Optional<Integer> workingHoursTo) {
 
         if (securityService.isAuthorized(headers)) {
-            Collection<ParkingDto> parkings = parkingService.filterParkingsForOwnerId(ownerId, city, street, workingHoursFrom, workingHoursTo);
+            Collection<ParkingDto> parkings = parkingService.filterParkingsForOwnerIdWithParams(ownerId, city, street, workingHoursFrom, workingHoursTo);
             return ResponseEntity.ok(parkings);
         }
         else return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Collections.EMPTY_LIST);

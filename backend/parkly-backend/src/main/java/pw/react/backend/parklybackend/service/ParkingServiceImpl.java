@@ -1,7 +1,6 @@
 package pw.react.backend.parklybackend.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.FieldError;
@@ -43,18 +42,6 @@ class ParkingServiceImpl implements ParkingService {
         this.ownerRepository = ownerRepository;
         this.spotRepository = spotRepository;
     }
-
-//    @ResponseStatus(HttpStatus.BAD_REQUEST)
-//    @ExceptionHandler(MethodArgumentNotValidException.class)
-//    public Map<String, String> handleValidationExceptions(MethodArgumentNotValidException ex) {
-//        Map<String,String> errors = new HashMap<>();
-//        ex.getBindingResult().getAllErrors().forEach((error) -> {
-//            String fieldName = ((FieldError) error).getField();
-//            String errorMessage = error.getDefaultMessage();
-//            errors.put(fieldName, errorMessage);
-//        });
-//        return errors;
-//    }
 
     @Override
     public ParkingDto updateParking(Long id, ParkingDto parkingRequest) {
@@ -145,47 +132,7 @@ class ParkingServiceImpl implements ParkingService {
     }
 
     @Override
-    public Collection<ParkingDto> filterParkings(Optional<String> city, Optional<String> street, Optional<Integer> workingHoursFrom, Optional<Integer> workingHoursTo) {
-
-        List<Parking> filterResults;
-        //wszystko
-        if (street.isPresent() && workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
-            filterResults = filterByAll(city.get(), street.get(), workingHoursFrom.get(), workingHoursTo.get());
-        }
-        //miasto i ulica
-        else if (street.isPresent() && !workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
-            filterResults = parkingRepository.findAllByCityAndStreet(city.get(), street.get());
-        }
-        //tylko miasto
-        else if (!street.isPresent() && !workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
-            filterResults = parkingRepository.findAllByCity(city.get());
-        }
-        //tylko miasto i obie godziny
-        else if (!street.isPresent() && workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
-            filterResults = filterByCityAndHours(city.get(), workingHoursFrom.get(), workingHoursTo.get());
-        }
-        //tylko miasto i hoursFrom
-        else if (!street.isPresent() && workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
-            filterResults = filterByHoursFrom(city.get(), workingHoursFrom.get());
-        }
-        //tylko miasto i hoursTo
-        else if (!street.isPresent() && !workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
-            filterResults = filterByHoursTo(city.get(), workingHoursTo.get());
-        }
-        //miasto ulica hoursFrom
-        else if (street.isPresent() && workingHoursFrom.isPresent() && !workingHoursTo.isPresent()) {
-            filterResults = filterByStreetAndHoursFrom(city.get(), street.get(), workingHoursFrom.get());
-        }
-        //miasto ulica hoursTo
-        else if (street.isPresent() && !workingHoursFrom.isPresent() && workingHoursTo.isPresent()) {
-            filterResults = filterByStreetAndHoursTo(city.get(), street.get(), workingHoursTo.get());
-        } else return null;
-
-        return getParkingDtoCollection(filterResults);
-    }
-
-    @Override
-    public Collection<ParkingDto> filterParkingsForOwnerId(Long ownerId, Optional<String> city, Optional<String> street, Optional<Integer> workingFrom, Optional<Integer> workingTo) {
+    public Collection<ParkingDto> filterParkingsForOwnerIdWithParams(Long ownerId, Optional<String> city, Optional<String> street, Optional<Integer> workingFrom, Optional<Integer> workingTo) {
 
             String cityVal = null;
             String streetVal = null;
@@ -218,46 +165,13 @@ class ParkingServiceImpl implements ParkingService {
         if (!Parking.isNumberValid(parking.getSpotsNumber())) throw new InvalidArgumentException("Number of spots has to be greater than 0");
     }
 
-
-    public List<Parking> filterByAll(String city, String street, int workingFrom, int workingTo) {
-        return parkingRepository.findAllByCityAndStreetAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(
-                city, street, workingFrom, workingTo);
-    }
-
-
-    public List<Parking> filterByCityAndHours(String city, int workingFrom, int workingTo) {
-        return parkingRepository.findAllByCityAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(
-                city, workingFrom, workingTo);
-    }
-
-
-    public List<Parking> filterByHoursFrom(String city, int workingFrom) {
-        return parkingRepository.findAllByCityAndWorkingHoursFromIsLessThanEqual(city, workingFrom);
-    }
-
-
-    public List<Parking> filterByHoursTo(String city, int workingTo) {
-        return parkingRepository.findAllByCityAndWorkingHoursToIsGreaterThanEqual(city, workingTo);
-    }
-
-
-    public List<Parking> filterByStreetAndHoursFrom(String city, String street, int workingFrom) {
-        return parkingRepository.findAllByCityAndStreetAndWorkingHoursFromIsLessThanEqual(city, street, workingFrom);
-    }
-
-
-    public List<Parking> filterByStreetAndHoursTo(String city, String street, int workingTo) {
-        return parkingRepository.findAllByCityAndStreetAndWorkingHoursToIsGreaterThanEqual(city, street, workingTo);
-    }
-
     private boolean existReservationsForParking(Long parkingId) {
         LocalDateTime today = LocalDateTime.now();
-        //List<Reservation> reservations = reservationRepository.findAllByParkingIdAndDateToGreaterThanEqual(parkingId, today);
-//        if(reservations.isEmpty()){
-//            return false;
-//        }
-//        return true;
-        return false;
+        List<Reservation> reservations = reservationRepository.findAllByParkingSpotParkingIdAndDateToGreaterThanEqual(parkingId, today);
+        if(reservations.isEmpty()){
+            return false;
+        }
+        return true;
     }
 
     private void addParkingSpots(int numberOfSpots, Parking parking){
@@ -294,13 +208,11 @@ class ParkingServiceImpl implements ParkingService {
     }
 
     private Collection<ParkingDto> getParkingDtoCollection(Collection<Parking> parkings){
-        List<ParkingDto> parkingDtos = new ArrayList<ParkingDto>(parkings.size());
+        List<ParkingDto> parkingDtos = new ArrayList<>(parkings.size());
         for (Parking parking : parkings) {
-            ParkingDto dto = getParkingDto(parking);
-            parkingDtos.add(dto);
+            parkingDtos.add(getParkingDto(parking));
         }
         return parkingDtos;
     }
-
 
 }

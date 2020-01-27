@@ -78,7 +78,8 @@ public class ReservationController {
                                                                          @RequestParam Optional<String> city, @RequestParam Optional<String> street,
                                                                          @RequestParam Optional<Integer> totalCostFrom,  @RequestParam Optional<Integer> totalCostTo) {
         if (securityService.isAuthorized(headers)) {
-            return ResponseEntity.ok(reservationService.filterReservations(ownerId, city, street, totalCostFrom, totalCostTo));
+            Collection<ReservationDto> res = reservationService.filterReservations(ownerId, city, street, totalCostFrom, totalCostTo);
+            return ResponseEntity.ok(res);
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Collections.emptyList());
     }

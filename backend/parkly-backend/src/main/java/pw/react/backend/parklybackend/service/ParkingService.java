@@ -20,7 +20,6 @@ public interface ParkingService {
     ParkingDto getParking(long parkingId);
     Collection<ParkingDto> getAllParkings();
     Collection<ParkingDto> getAllParkingsByOnwerId(Long parkingOwnerId);
-    Collection<ParkingDto> filterParkings(Optional<String> city, Optional<String> street, Optional<Integer> workingFrom, Optional<Integer> workingTo);
-    Collection<ParkingDto> filterParkingsForOwnerId(Long ownerId, Optional<String> city, Optional<String> street, Optional<Integer> workingFrom, Optional<Integer> workingTo);
+    Collection<ParkingDto> filterParkingsForOwnerIdWithParams(Long ownerId, Optional<String> city, Optional<String> street, Optional<Integer> workingFrom, Optional<Integer> workingTo);
     boolean isParkingValid(Parking parking);
 }
