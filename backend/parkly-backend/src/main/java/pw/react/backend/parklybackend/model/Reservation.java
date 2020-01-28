@@ -18,9 +18,6 @@ public class Reservation {
     @ManyToOne
     @JoinColumn(name="spotId")
     private ParkingSpot parkingSpot;
-//    @ManyToOne
-//    @JoinColumn(name="parkingId")
-//    private Parking parking;
     @Column(name = "dateFrom")
     private LocalDateTime dateFrom;
     @Column(name = "dateTo")
@@ -110,11 +107,4 @@ public class Reservation {
         this.totalCost = totalCost;
     }
 
-//    public Parking getParking() {
-//        return parking;
-//    }
-//
-//    public void setParking(Parking parking) {
-//        this.parking = parking;
-//    }
 }

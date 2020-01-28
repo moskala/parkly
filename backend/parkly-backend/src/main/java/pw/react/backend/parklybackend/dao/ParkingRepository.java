@@ -13,15 +13,8 @@ import java.util.Optional;
 public interface ParkingRepository extends JpaRepository<Parking, Long> {
 
     List<Parking> findAllByOwnerId(long ownerId);
-    List<Parking> findAllByCity(String city);
-    List<Parking> findAllByCityAndStreet(String city, String street);
 
-    List<Parking> findAllByCityAndStreetAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(
-            String city,
-            String street,
-            int workingHoursFrom,
-            int workingHoursTo
-    );
+    List<Parking> findAllByCityAndWorkingHoursFromAndWorkingHoursTo(String city, int workingHoursFrom, int workingHoursTo);
 
     List<Parking> findAllByCityAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(
             String city,
@@ -29,16 +22,7 @@ public interface ParkingRepository extends JpaRepository<Parking, Long> {
             int workingHoursTo
     );
 
-    List<Parking> findAllByCityAndWorkingHoursFromIsLessThanEqual(String city, int workingHoursFrom);
-
-    List<Parking> findAllByCityAndWorkingHoursToIsGreaterThanEqual(String city, int workingHoursTo);
-
-    List<Parking> findAllByCityAndStreetAndWorkingHoursFromIsLessThanEqual(String city, String street, int workingHoursFrom);
-
-    List<Parking> findAllByCityAndStreetAndWorkingHoursToIsGreaterThanEqual(String city, String street, int workingHoursTo);
-
     Optional<Parking> findById(Long aLong);
-
 
     @Query("SELECT p FROM Parking p WHERE ( p.owner.id = :ownerId) and (:city is null or p.city = :city) and (:street is null or p.street = :street) and (:workingHoursFrom is null or p.workingHoursFrom <= :workingHoursFrom) and (:workingHoursTo is null or p.workingHoursTo >= :workingHoursTo)")
     List<Parking> findByOwnerIdAndParams(@Param("ownerId") Long ownerId, @Param("city") String city,
@@ -50,4 +34,5 @@ public interface ParkingRepository extends JpaRepository<Parking, Long> {
 
     @Query("SELECT p FROM Parking p WHERE (p.owner.id= :ownerId) and (:city is null or p.city = :city) ")
     List<Parking> findByParamCity(@Param("ownerId") Long ownerId, @Param("city") String city);
+
 }

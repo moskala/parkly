@@ -36,7 +36,7 @@ public class Parking implements Serializable {
     private int workingHoursTo;
 
     @Column(name="costPerHour")
-    private  int costPerHour;
+    private int costPerHour;
 
     @ManyToOne
     @JoinColumn(name = "ownerId")
