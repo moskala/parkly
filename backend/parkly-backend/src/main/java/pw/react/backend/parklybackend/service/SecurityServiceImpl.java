@@ -34,6 +34,7 @@ public class SecurityServiceImpl implements SecurityService {
         this.parkingOwnerRepository = parkingOwnerRepository;
     }
 
+    @Override
     public boolean isAuthenticated(HttpHeaders headers) {
 
         if (headers.containsKey(USER_EMAIL) && headers.containsKey(USER_PASSWORD)) {
