@@ -75,4 +75,16 @@ public class SecurityServiceImpl implements SecurityService {
         }
         return Optional.empty();
     }
+
+    @Override
+    public Optional<String> authorizeBookly(HttpHeaders headers) {
+
+        if(!headers.containsKey(USER_NAME)) Optional.empty();
+
+        Optional<ServiceUser> user = serviceUserRepository.findByUserName(headers.getFirst(USER_NAME));
+        if(user.isPresent()) {
+            return Optional.of(user.get().getUserToken());
+        }
+        else return Optional.empty();
+    }
 }

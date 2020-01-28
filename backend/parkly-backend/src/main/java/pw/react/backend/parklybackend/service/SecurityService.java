@@ -9,4 +9,5 @@ public interface SecurityService {
 
     boolean isAuthorized(HttpHeaders headers);
     Optional<LoggedUserDto> authenticateParkingOwner(HttpHeaders headers);
+    Optional<String> authorizeBookly(HttpHeaders headers);
 }
