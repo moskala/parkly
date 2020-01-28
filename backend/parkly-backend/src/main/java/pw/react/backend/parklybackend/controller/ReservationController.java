@@ -1,6 +1,7 @@
 package pw.react.backend.parklybackend.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -12,6 +13,7 @@ import pw.react.backend.parklybackend.service.SecurityService;
 
 import javax.validation.Valid;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
@@ -45,7 +47,8 @@ public class ReservationController {
 
     @GetMapping(path = "/find-parkings")
     public ResponseEntity<Collection<AvailableParkingDto>> findAvailableParkings(@RequestHeader HttpHeaders headers, @RequestParam String city,
-                                                                             @RequestParam LocalDateTime dateFrom, @RequestParam LocalDateTime dateTo) {
+                           @RequestParam("dateFrom") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateFrom,
+                           @RequestParam("dateTo") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dateTo) {
 
         if (securityService.isAuthorized(headers)) {
 
@@ -57,10 +60,6 @@ public class ReservationController {
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Collections.EMPTY_LIST);
     }
-
-
-
-
 
     @GetMapping(path = "")
     public ResponseEntity<Collection<ReservationDto>> getAllReservations(@RequestHeader HttpHeaders headers) {

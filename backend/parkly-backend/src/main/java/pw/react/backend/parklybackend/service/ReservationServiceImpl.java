@@ -1,19 +1,15 @@
 package pw.react.backend.parklybackend.service;
 
-import javassist.NotFoundException;
-import org.apache.tomcat.jni.Local;
-import org.springframework.beans.factory.ObjectProvider;
+import org.assertj.core.util.Lists;
+import org.assertj.core.util.Sets;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
-import pw.react.backend.parklybackend.appException.ForbiddenActionException;
 import pw.react.backend.parklybackend.appException.ResourceNotFoundException;
 import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
 import pw.react.backend.parklybackend.dao.ParkingRepository;
 import pw.react.backend.parklybackend.dao.ParkingSpotRepository;
 import pw.react.backend.parklybackend.dao.ReservationRepository;
 import pw.react.backend.parklybackend.dto.AvailableParkingDto;
-import pw.react.backend.parklybackend.dto.ParkingDto;
 import pw.react.backend.parklybackend.dto.ReservationDto;
 import pw.react.backend.parklybackend.model.Parking;
 import pw.react.backend.parklybackend.model.ParkingSpot;
@@ -111,8 +107,9 @@ public class ReservationServiceImpl implements ReservationService {
             List<ParkingSpot> spots = new ArrayList<>();
             spots.addAll(reservationRepository.findCrossedReservationsParkingSpots(p.getId(), dateFrom, dateTo));
             spots.addAll(reservationRepository.findInternalReservationsParkingSpots(p.getId(), dateFrom, dateTo));
+            List<ParkingSpot> spotsWithoutDuplicates = Lists.newArrayList(Sets.newHashSet(spots));
             int numberOfSpots = spotRepository.countAllByParkingId(p.getId());
-            if(numberOfSpots > spots.size()){
+            if(numberOfSpots > spotsWithoutDuplicates.size()){
 
                 availableParkings.add(new AvailableParkingDto(
                         p.getId(),
@@ -190,9 +187,15 @@ public class ReservationServiceImpl implements ReservationService {
 
     private Optional<ParkingSpot> findParkingSpot(Long parkingId, LocalDateTime dateFrom, LocalDateTime dateTo){
         List<ParkingSpot> spots = spotRepository.findAllByParkingId(parkingId);
-        // TODO: sprawdzanie miejscc po dacie
-        return Optional.of(spots.get(0));
-
+        List<ParkingSpot> spotsTaken = new ArrayList<>();
+        spotsTaken.addAll(reservationRepository.findCrossedReservationsParkingSpots(parkingId, dateFrom, dateTo));
+        spotsTaken.addAll(reservationRepository.findInternalReservationsParkingSpots(parkingId, dateFrom, dateTo));
+        List<ParkingSpot> spotsWithoutDuplicates = Lists.newArrayList(Sets.newHashSet(spotsTaken));
+        if(spots.size() > spotsWithoutDuplicates.size()){
+            spots.removeAll(spotsWithoutDuplicates);
+            return Optional.of(spots.get(0));
+        }
+        else return Optional.empty();
     }
 
     private int countTotalCost(Long parkingId, LocalDateTime dateFrom, LocalDateTime dateTo){
