@@ -31,19 +31,6 @@ public class ParkingController {
         this.securityService = securityService;
     }
 
-    @ResponseStatus(HttpStatus.BAD_REQUEST)
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public Map<String, String> handleValidationExceptions(
-            MethodArgumentNotValidException ex) {
-        Map<String, String> errors = new HashMap<>();
-        ex.getBindingResult().getAllErrors().forEach((error) -> {
-            String fieldName = ((FieldError) error).getField();
-            String errorMessage = error.getDefaultMessage();
-            errors.put(fieldName, errorMessage);
-        });
-        return errors;
-    }
-
     @GetMapping(path = "")
     public ResponseEntity<Collection<ParkingDto>> getAllParkings(@RequestHeader HttpHeaders headers) {
 
