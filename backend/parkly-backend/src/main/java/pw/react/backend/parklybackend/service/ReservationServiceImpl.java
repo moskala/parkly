@@ -2,6 +2,7 @@ package pw.react.backend.parklybackend.service;
 
 import javassist.NotFoundException;
 import org.apache.tomcat.jni.Local;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Example;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
 import pw.react.backend.parklybackend.dao.ParkingRepository;
 import pw.react.backend.parklybackend.dao.ParkingSpotRepository;
 import pw.react.backend.parklybackend.dao.ReservationRepository;
+import pw.react.backend.parklybackend.dto.AvailableParkingDto;
 import pw.react.backend.parklybackend.dto.ParkingDto;
 import pw.react.backend.parklybackend.dto.ReservationDto;
 import pw.react.backend.parklybackend.model.Parking;
@@ -19,10 +21,7 @@ import pw.react.backend.parklybackend.model.Reservation;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 public class ReservationServiceImpl implements ReservationService {
@@ -46,7 +45,11 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public ReservationDto getReservationById(Long reservationId) {
-        return null;
+        Optional<Reservation> reservation = reservationRepository.findById(reservationId);
+        if(reservation.isPresent()){
+            return createReservationDtoFromValue(reservation.get());
+        }
+        else throw new ResourceNotFoundException(String.format("Reservation with id %s does not exists.", reservationId));
     }
 
     @Override
@@ -57,7 +60,6 @@ public class ReservationServiceImpl implements ReservationService {
             res.setParkingSpot(spot.get());
             int totalCost = countTotalCost(reservation.getParkingId(), reservation.getDateFrom(), reservation.getDateTo());
             res.setTotalCost(totalCost);
-            //res.setParking(parkingRepository.findById(reservation.getParkingId()).get());
             res.setCreatedAt();
             reservationRepository.save(res);
             return Optional.of(createReservationDtoFromValue(res));
@@ -91,8 +93,37 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Collection<ReservationDto> findPossibleReservations(String city, LocalDateTime dateFrom, LocalDateTime dateTo) {
-        return null;
+    public Collection<AvailableParkingDto> findAvailableParkings(String city, LocalDateTime dateFrom, LocalDateTime dateTo) {
+        List<Parking> parkings;
+        int workingHoursFrom = dateFrom.getHour();
+        int workingHoursTo = dateTo.getHour();
+        if(dateFrom.getDayOfMonth() != dateTo.getDayOfMonth()){
+            parkings = parkingRepository.findAllByCityAndWorkingHoursFromAndWorkingHoursTo(city, 0, 24);
+        }
+        else {
+            parkings = parkingRepository.findAllByCityAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(city, workingHoursFrom, workingHoursTo);
+        }
+        if(parkings.isEmpty()){
+            return Collections.EMPTY_LIST;
+        }
+        List<AvailableParkingDto> availableParkings = new ArrayList<>();
+        for(Parking p : parkings){
+            List<ParkingSpot> spots = new ArrayList<>();
+            spots.addAll(reservationRepository.findCrossedReservationsParkingSpots(p.getId(), dateFrom, dateTo));
+            spots.addAll(reservationRepository.findInternalReservationsParkingSpots(p.getId(), dateFrom, dateTo));
+            int numberOfSpots = spotRepository.countAllByParkingId(p.getId());
+            if(numberOfSpots > spots.size()){
+
+                availableParkings.add(new AvailableParkingDto(
+                        p.getId(),
+                        p.getCity(),
+                        p.getStreet(),
+                        p.getStreetNumber(),
+                        countTotalCostForPrice(p.getCostPerHour(), dateFrom, dateTo)
+                        ));
+            }
+        }
+        return availableParkings;
     }
 
     @Override
@@ -159,7 +190,7 @@ public class ReservationServiceImpl implements ReservationService {
 
     private Optional<ParkingSpot> findParkingSpot(Long parkingId, LocalDateTime dateFrom, LocalDateTime dateTo){
         List<ParkingSpot> spots = spotRepository.findAllByParkingId(parkingId);
-        // TO DO: sprawdzanie miejscc po dacie
+        // TODO: sprawdzanie miejscc po dacie
         return Optional.of(spots.get(0));
 
     }
@@ -173,7 +204,12 @@ public class ReservationServiceImpl implements ReservationService {
             return costPerHour * (int)totalHours;
 
         } else throw new ResourceNotFoundException(String.format("Parking with id %s does not exists.", parkingId));
+    }
 
+    private int countTotalCostForPrice(int costPerHour, LocalDateTime dateFrom, LocalDateTime dateTo){
+            Duration duration = Duration.between(dateTo, dateFrom);
+            long totalHours = Math.abs(duration.toHours());
+            return costPerHour * (int)totalHours;
     }
 
 }

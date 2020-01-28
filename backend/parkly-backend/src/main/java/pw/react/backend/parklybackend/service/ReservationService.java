@@ -1,6 +1,7 @@
 package pw.react.backend.parklybackend.service;
 
 import org.springframework.http.ResponseEntity;
+import pw.react.backend.parklybackend.dto.AvailableParkingDto;
 import pw.react.backend.parklybackend.dto.ReservationDto;
 import pw.react.backend.parklybackend.model.Reservation;
 
@@ -20,10 +21,9 @@ public interface ReservationService {
 
     boolean deleteReservation(Long reservationId);
 
-    Collection<ReservationDto> findPossibleReservations(String city, LocalDateTime dateFrom, LocalDateTime dateTo);
+    Collection<AvailableParkingDto> findAvailableParkings(String city, LocalDateTime dateFrom, LocalDateTime dateTo);
 
     Collection<ReservationDto> filterReservations(Long ownerId, Optional<String> city, Optional<String> street,
                                                   Optional<Integer> incomeFrom, Optional<Integer> incomeTo);
-
 
 }

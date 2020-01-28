@@ -5,11 +5,13 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import pw.react.backend.parklybackend.dto.AvailableParkingDto;
 import pw.react.backend.parklybackend.dto.ReservationDto;
 import pw.react.backend.parklybackend.service.ReservationService;
 import pw.react.backend.parklybackend.service.SecurityService;
 
 import javax.validation.Valid;
+import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Optional;
@@ -40,6 +42,25 @@ public class ReservationController {
         }
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ReservationDto.EMPTY);
     }
+
+    @GetMapping(path = "/find-parkings")
+    public ResponseEntity<Collection<AvailableParkingDto>> findAvailableParkings(@RequestHeader HttpHeaders headers, @RequestParam String city,
+                                                                             @RequestParam LocalDateTime dateFrom, @RequestParam LocalDateTime dateTo) {
+
+        if (securityService.isAuthorized(headers)) {
+
+            Collection<AvailableParkingDto> parkings = reservationService.findAvailableParkings(city, dateFrom, dateTo);
+            if(!parkings.isEmpty()){
+                return ResponseEntity.ok(parkings);
+            }
+            else return ResponseEntity.status(HttpStatus.NO_CONTENT).body(parkings);
+        }
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(Collections.EMPTY_LIST);
+    }
+
+
+
+
 
     @GetMapping(path = "")
     public ResponseEntity<Collection<ReservationDto>> getAllReservations(@RequestHeader HttpHeaders headers) {

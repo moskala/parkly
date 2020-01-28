@@ -1,8 +1,8 @@
 package pw.react.backend.parklybackend.dto;
 
-public class PossibleParkingReservationDto {
+public class AvailableParkingDto {
 
-    public static PossibleParkingReservationDto EMPTY = new PossibleParkingReservationDto();
+    public static AvailableParkingDto EMPTY = new AvailableParkingDto();
 
     private long parkingId;
     private String city;
@@ -10,9 +10,9 @@ public class PossibleParkingReservationDto {
     private int streetNumber;
     private int totalCost;
 
-    public PossibleParkingReservationDto(){ }
+    public AvailableParkingDto(){ }
 
-    public PossibleParkingReservationDto(long parkingId, String city, String street, int streetNumber, int totalCost){
+    public AvailableParkingDto(long parkingId, String city, String street, int streetNumber, int totalCost){
         this.parkingId = parkingId;
         this.city = city;
         this.street = street;

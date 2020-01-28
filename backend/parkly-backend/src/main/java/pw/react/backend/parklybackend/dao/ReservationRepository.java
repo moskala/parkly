@@ -4,6 +4,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import pw.react.backend.parklybackend.dto.ReservationDto;
+import pw.react.backend.parklybackend.model.ParkingSpot;
 import pw.react.backend.parklybackend.model.Reservation;
 
 import java.time.LocalDateTime;
@@ -30,4 +31,16 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     List<Reservation> findReservationsWithParams(@Param("ownerId") Long ownerId, @Param("city") String city,
                                                  @Param("street") String street, @Param("totalCostFrom") Integer totalCostFrom,
                                                  @Param("totalCostTo") Integer totalCostTo);
+
+    @Query("SELECT r.parkingSpot FROM Reservation r WHERE ( r.parkingSpot.parking.id = :parkingId)" +
+            "and ((:dateFrom > r.dateFrom) and (:dateFrom < r.dateTo)) or ((:dateTo > r.dateFrom) and (:dateTo < r.dateTo))")
+    List<ParkingSpot> findCrossedReservationsParkingSpots(@Param("parkingId") Long parkingId, @Param("dateFrom") LocalDateTime dateFrom,
+                                              @Param("dateTo") LocalDateTime dateTo);
+
+    @Query("SELECT r.parkingSpot FROM Reservation r WHERE ( r.parkingSpot.parking.id = :parkingId)" +
+            "and (:dateFrom <= r.dateFrom) and (:dateTo >= r.dateTo)")
+    List<ParkingSpot> findInternalReservationsParkingSpots(@Param("parkingId") Long parkingId, @Param("dateFrom") LocalDateTime dateFrom,
+                                                                    @Param("dateTo") LocalDateTime dateTo);
+
+
 }
