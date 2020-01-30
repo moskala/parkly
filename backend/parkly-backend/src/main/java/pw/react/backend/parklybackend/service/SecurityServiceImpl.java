@@ -3,6 +3,7 @@ package pw.react.backend.parklybackend.service;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.stereotype.Service;
+import pw.react.backend.parklybackend.appException.InvalidArgumentException;
 import pw.react.backend.parklybackend.appException.ResourceNotFoundException;
 import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
 import pw.react.backend.parklybackend.dao.ServiceUserRepository;
@@ -16,10 +17,10 @@ import java.util.Optional;
 @Service
 public class SecurityServiceImpl implements SecurityService {
 
-    private static final String USER_NAME="user_name";
-    private static final String USER_TOKEN="user_token";
-    private static final String USER_EMAIL="email";
-    private static final String USER_PASSWORD="password";
+    private static final String USER_NAME="User-name";
+    private static final String USER_TOKEN="User-token";
+    private static final String USER_EMAIL="Email";
+    private static final String USER_PASSWORD="Password";
 
 
     private ServiceUserRepository serviceUserRepository;
