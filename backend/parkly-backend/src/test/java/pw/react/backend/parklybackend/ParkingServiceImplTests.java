@@ -58,7 +58,6 @@ public class ParkingServiceImplTests {
 
         ParkingDto actual = parkingService.updateParking(1L, new ParkingDto());
 
-        //assertThat(actual).isEqualTo(ParkingDto.EMPTY);
         verify(parkingRepository, times(1)).existsById(eq(1L));
         verify(parkingRepository, times(0)).save(any(Parking.class));
     }
