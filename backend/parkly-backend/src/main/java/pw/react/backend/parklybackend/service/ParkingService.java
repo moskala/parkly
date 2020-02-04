@@ -22,4 +22,5 @@ public interface ParkingService {
     Collection<ParkingDto> getAllParkingsByOnwerId(Long parkingOwnerId);
     Collection<ParkingDto> filterParkingsForOwnerIdWithParams(Long ownerId, Optional<String> city, Optional<String> street, Optional<Integer> workingFrom, Optional<Integer> workingTo);
     boolean isParkingValid(Parking parking);
+    void addParkingSpots(int numberOfSpots, Parking parking);
 }

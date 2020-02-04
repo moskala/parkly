@@ -3,7 +3,6 @@ package pw.react.backend.parklybackend.service;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.rest.webmvc.ResourceNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -12,6 +11,7 @@ import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import pw.react.backend.parklybackend.appException.InvalidArgumentException;
+import pw.react.backend.parklybackend.appException.ResourceNotFoundException;
 import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
 import pw.react.backend.parklybackend.model.Parking;
 import pw.react.backend.parklybackend.model.ParkingOwner;
@@ -25,12 +25,11 @@ import java.security.spec.KeySpec;
 import java.util.*;
 
 @Service
-class ParkingOwnerServiceImpl implements ParkingOwnerService {
-    private final Logger logger = LoggerFactory.getLogger(ParkingServiceImpl.class);
+public class ParkingOwnerServiceImpl implements ParkingOwnerService {
 
     private ParkingOwnerRepository repository;
 
-    ParkingOwnerServiceImpl() { /*Needed only for initializing spy in unit tests*/}
+    ParkingOwnerServiceImpl() { }
 
     @Autowired
     ParkingOwnerServiceImpl(ParkingOwnerRepository repository)
