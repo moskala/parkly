@@ -44,6 +44,7 @@ public class ParkingServiceImpl implements ParkingService {
     }
 
     @Override
+    @Transactional
     public ParkingDto updateParking(Long id, ParkingDto parkingRequest) {
 
         if(existReservationsForParking(id)){
@@ -99,6 +100,7 @@ public class ParkingServiceImpl implements ParkingService {
     }
 
     @Override
+    @Transactional
     public ParkingDto addParking(ParkingDto parkingRequest) {
 
         isNumberOfSpotsValid(parkingRequest);
@@ -174,7 +176,10 @@ public class ParkingServiceImpl implements ParkingService {
         return true;
     }
 
-    private void addParkingSpots(int numberOfSpots, Parking parking){
+
+    @Override
+    @Transactional
+    public void addParkingSpots(int numberOfSpots, Parking parking){
 
         int count = spotRepository.countAllByParkingId(parking.getId());
         if(count == numberOfSpots) return;
