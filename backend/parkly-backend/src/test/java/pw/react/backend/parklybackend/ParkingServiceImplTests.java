@@ -18,21 +18,14 @@ import pw.react.backend.parklybackend.dao.ParkingSpotRepository;
 import pw.react.backend.parklybackend.dao.ReservationRepository;
 import pw.react.backend.parklybackend.dto.ParkingDto;
 import pw.react.backend.parklybackend.model.Parking;
-import pw.react.backend.parklybackend.model.ParkingOwner;
 import pw.react.backend.parklybackend.model.Reservation;
 import pw.react.backend.parklybackend.service.*;
 
-import java.sql.DriverManager;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
-import java.util.Optional;
 
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.when;
-import static org.assertj.core.api.Assertions.assertThat;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)

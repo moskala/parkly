@@ -50,9 +50,7 @@ public class ReservationServiceImplTests {
         LocalDateTime dFrom = LocalDateTime.now();
         LocalDateTime dTo = LocalDateTime.now().plusHours(1);
 
-        when(parkingRepository.findAllByCityAndWorkingHoursFromAndWorkingHoursTo(ArgumentMatchers.anyString(), anyInt(), anyInt()))
-                .thenReturn(Lists.emptyList());
-        when(parkingRepository.findAllByCityAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(ArgumentMatchers.anyString(), anyInt(), anyInt()))
+        when(parkingRepository.findAllByCityAndWorkingHoursFromIsLessThanEqualAndWorkingHoursToIsGreaterThanEqual(anyString(), anyInt(), anyInt()))
                 .thenReturn(Lists.emptyList());
 
         Collection<AvailableParkingDto> result = reservationService.findAvailableParkings(city, dFrom, dTo);
@@ -103,7 +101,7 @@ public class ReservationServiceImplTests {
                 .thenReturn(Lists.newArrayList( new ParkingSpot()));
         when(reservationRepository.findInternalReservationsParkingSpots(anyLong(), any(LocalDateTime.class), any(LocalDateTime.class)))
                 .thenReturn(Lists.emptyList());
-        when(spotRepository.countAllByParkingId(1L)).thenReturn(1);
+        when(spotRepository.countAllByParkingId(anyLong())).thenReturn(1);
 
         Collection<AvailableParkingDto> result = reservationService.findAvailableParkings(city, dFrom, dTo);
 
