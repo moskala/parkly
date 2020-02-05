@@ -25,7 +25,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 
 @Service
-class ParkingServiceImpl implements ParkingService {
+public class ParkingServiceImpl implements ParkingService {
 
     private ParkingRepository parkingRepository;
     private ReservationRepository reservationRepository;
@@ -35,7 +35,7 @@ class ParkingServiceImpl implements ParkingService {
     ParkingServiceImpl() { }
 
     @Autowired
-    ParkingServiceImpl(ParkingRepository repository, ReservationRepository reservationRepository,
+    public ParkingServiceImpl(ParkingRepository repository, ReservationRepository reservationRepository,
                        ParkingOwnerRepository ownerRepository, ParkingSpotRepository spotRepository) {
         this.parkingRepository = repository;
         this.reservationRepository = reservationRepository;
