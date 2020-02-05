@@ -68,13 +68,13 @@ public class ParkingServiceImplTests {
     public ExpectedException expectedEx = ExpectedException.none();
 
     @Test
-    public void givenParkingWithFutureReservations_whenDeleteParking_thenThrowForbiddenActionException() throws Exception {
+    public void givenParkingWithReservations_whenDeleteParking_thenThrowForbiddenActionException() throws Exception {
 
         expectedEx.expect(ForbiddenActionException.class);
-        expectedEx.expectMessage(String.format("Parking with id 1 has future reservations."));
+        expectedEx.expectMessage(String.format("Parking with id 1 has reservations."));
 
         Reservation reservation = new Reservation();
-        when(reservationRepository.findAllByParkingSpotParkingIdAndDateToGreaterThanEqual(anyLong(), any(LocalDateTime.class)))
+        when(reservationRepository.findAllByParkingSpotParkingId(anyLong()))
                 .thenReturn(Arrays.asList(reservation));
 
         boolean success = parkingService.deleteParking(1L);
