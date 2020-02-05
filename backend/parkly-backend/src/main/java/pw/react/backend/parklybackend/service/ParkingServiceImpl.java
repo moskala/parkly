@@ -56,6 +56,11 @@ public class ParkingServiceImpl implements ParkingService {
 
             Parking parking = Parking.valueFrom(parkingRequest);
 
+            if(parking.getWorkingHoursFrom() == parking.getWorkingHoursTo()) {
+                parking.setWorkingHoursFrom(0);
+                parking.setWorkingHoursTo(24);
+            }
+
             if(isParkingValid(parking)){
                 parking.setId(id);
                 parking.setOwner(getParkingOwner(parkingRequest.getOwnerId()));
@@ -106,6 +111,11 @@ public class ParkingServiceImpl implements ParkingService {
         isNumberOfSpotsValid(parkingRequest);
 
         Parking parking = Parking.valueFrom(parkingRequest);
+
+        if(parking.getWorkingHoursFrom() == parking.getWorkingHoursTo()) {
+            parking.setWorkingHoursFrom(0);
+            parking.setWorkingHoursTo(24);
+        }
 
         if(isParkingValid(parking)){
 
