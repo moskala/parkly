@@ -10,15 +10,9 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import pw.react.backend.parklybackend.appException.ForbiddenActionException;
 import pw.react.backend.parklybackend.appException.InvalidArgumentException;
 import pw.react.backend.parklybackend.appException.ResourceNotFoundException;
-import pw.react.backend.parklybackend.dao.ParkingOwnerRepository;
-import pw.react.backend.parklybackend.dao.ParkingRepository;
-import pw.react.backend.parklybackend.dao.ParkingSpotRepository;
-import pw.react.backend.parklybackend.dao.ReservationRepository;
+import pw.react.backend.parklybackend.dao.*;
 import pw.react.backend.parklybackend.dto.ParkingDto;
-import pw.react.backend.parklybackend.model.Parking;
-import pw.react.backend.parklybackend.model.ParkingOwner;
-import pw.react.backend.parklybackend.model.ParkingSpot;
-import pw.react.backend.parklybackend.model.Reservation;
+import pw.react.backend.parklybackend.model.*;
 
 import javax.validation.*;
 import java.time.LocalDateTime;
@@ -47,7 +41,7 @@ public class ParkingServiceImpl implements ParkingService {
     @Transactional
     public ParkingDto updateParking(Long id, ParkingDto parkingRequest) {
 
-        if(existReservationsForParking(id)){
+        if(existFutureReservationsForParking(id)){
             throw new ForbiddenActionException(String.format(" There are existing future reservations for parking with id %s .", id));
         }
         if (parkingRepository.existsById(id)) {
@@ -92,7 +86,7 @@ public class ParkingServiceImpl implements ParkingService {
 
         if(existReservationsForParking(parkingId)){
 
-            throw new ForbiddenActionException(String.format("Parking with id %s has future reservations.", parkingId));
+            throw new ForbiddenActionException(String.format("Parking with id %s has reservations.", parkingId));
         }
 
         Optional<Parking> parking = parkingRepository.findById(parkingId);
@@ -177,9 +171,17 @@ public class ParkingServiceImpl implements ParkingService {
         if (!Parking.isNumberValid(parking.getSpotsNumber())) throw new InvalidArgumentException("Number of spots has to be greater than 0");
     }
 
-    private boolean existReservationsForParking(Long parkingId) {
+    private boolean existFutureReservationsForParking(Long parkingId) {
         LocalDateTime today = LocalDateTime.now();
         List<Reservation> reservations = reservationRepository.findAllByParkingSpotParkingIdAndDateToGreaterThanEqual(parkingId, today);
+        if(reservations.isEmpty()){
+            return false;
+        }
+        return true;
+    }
+
+    private boolean existReservationsForParking(Long parkingId) {
+        List<Reservation> reservations = reservationRepository.findAllByParkingSpotParkingId(parkingId);
         if(reservations.isEmpty()){
             return false;
         }
